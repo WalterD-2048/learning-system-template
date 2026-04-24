@@ -1,0 +1,175 @@
+{
+  "subject": "替换为新学习系统主题",
+  "classification": "C",
+  "textbook": "替换为主教材、课程或资料来源",
+  "intensity": "low",
+  "questions_per_session": {
+    "high": 12,
+    "medium": 10,
+    "low": 8
+  },
+  "mastery_threshold": {
+    "high": 0.833,
+    "medium": 0.8,
+    "low": 0.75
+  },
+  "mastery_score": {
+    "defaults_by_status": {
+      "locked": 0.0,
+      "unlocked": 0.05,
+      "concept_done": 0.25,
+      "demo_done": 0.45,
+      "learning": 0.35,
+      "needs_validation": 0.2,
+      "mastered": 0.75,
+      "review_due": 0.72,
+      "long_term": 0.92
+    },
+    "session": {
+      "pass_base_gain": 0.16,
+      "pass_accuracy_weight": 0.12,
+      "fail_base_penalty": 0.12,
+      "fail_wrong_ratio_weight": 0.2,
+      "early_termination_penalty": 0.06
+    },
+    "review": {
+      "pass_base_gain": 0.08,
+      "pass_accuracy_weight": 0.1,
+      "pass_round_bonus": 0.015,
+      "fail_base_penalty": 0.15,
+      "fail_round_penalty": 0.03
+    }
+  },
+  "review_schedule": [1, 3, 7, 21, 60, 90],
+  "long_term_mastery_after_round": 4,
+  "fire": {
+    "enabled": true,
+    "default_weight": 1.0,
+    "credits_per_review_equivalent": 2.0,
+    "max_delay_factor": 0.5
+  },
+  "remediation": {
+    "force_demo_after_failures": 2,
+    "force_concept_after_failures": 3,
+    "prerequisite_check_threshold": 0.5
+  },
+  "interleaving": {
+    "current_skill_min_questions": 4,
+    "max_recent_candidates": 5,
+    "spread_penalty": 0.85,
+    "score_weights": {
+      "current_skill": 8.0,
+      "due_review": 3.0,
+      "due_review_per_overdue_day": 0.35,
+      "prerequisite": 2.5,
+      "needs_validation": 3.5,
+      "learning": 2.0,
+      "recent_skill": 1.0,
+      "recent_error": 0.75,
+      "mastery_gap": 2.5,
+      "low_accuracy": 8.0,
+      "recent_practice_penalty": 1.25
+    }
+  },
+  "early_termination": {
+    "min_questions": 4,
+    "max_error_ratio": 0.75
+  },
+  "practice_question_design": {
+    "max_multiple_choice": 2,
+    "require_explanation_for_multiple_choice": true,
+    "blueprint": [
+      {
+        "question_type": "conceptual",
+        "answer_format": "short_answer"
+      },
+      {
+        "question_type": "scenario",
+        "answer_format": "short_answer"
+      },
+      {
+        "question_type": "conceptual",
+        "answer_format": "multiple_choice_explained"
+      },
+      {
+        "question_type": "argument_analysis",
+        "answer_format": "short_argument"
+      },
+      {
+        "question_type": "counterexample",
+        "answer_format": "counterexample"
+      },
+      {
+        "question_type": "scenario",
+        "answer_format": "short_answer"
+      },
+      {
+        "question_type": "cross_skill",
+        "answer_format": "short_argument"
+      },
+      {
+        "question_type": "boundary",
+        "answer_format": "multiple_choice_explained"
+      }
+    ],
+    "extension_blueprint": [
+      {
+        "question_type": "scenario",
+        "answer_format": "short_answer"
+      },
+      {
+        "question_type": "argument_analysis",
+        "answer_format": "short_argument"
+      },
+      {
+        "question_type": "counterexample",
+        "answer_format": "counterexample"
+      },
+      {
+        "question_type": "boundary",
+        "answer_format": "short_argument"
+      }
+    ]
+  },
+  "demo_question_design": {
+    "total_questions": 6,
+    "blueprint": [
+      {
+        "stage": "worked_example",
+        "coverage": "core",
+        "question_type": "conceptual",
+        "response_mode": "full_solution"
+      },
+      {
+        "stage": "worked_example",
+        "coverage": "misconception",
+        "question_type": "argument_analysis",
+        "response_mode": "full_solution"
+      },
+      {
+        "stage": "faded_example",
+        "coverage": "boundary",
+        "question_type": "boundary",
+        "response_mode": "scaffolded_fill"
+      },
+      {
+        "stage": "faded_example",
+        "coverage": "transfer",
+        "question_type": "scenario",
+        "response_mode": "scaffolded_fill"
+      },
+      {
+        "stage": "independent_try",
+        "coverage": "core",
+        "question_type": "counterexample",
+        "response_mode": "independent_short"
+      },
+      {
+        "stage": "independent_try",
+        "coverage": "bridge",
+        "question_type": "cross_skill",
+        "response_mode": "independent_short"
+      }
+    ]
+  }
+}

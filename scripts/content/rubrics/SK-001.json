@@ -1,0 +1,229 @@
+{
+  "skill_id": "SK-001",
+  "rubrics": [
+    {
+      "id": "SK-001-R01",
+      "question_type": "conceptual",
+      "recommended_format": "short_answer",
+      "must_hit": [
+        "给出概念的正面定义",
+        "指出概念要解决或区分的问题",
+        "用自己的语言表达，而不是只重复术语"
+      ],
+      "common_failures": [
+        {
+          "signal": "只背术语，没有说明用途",
+          "error_type": "conceptual",
+          "feedback": "需要补上这个概念在系统中的作用。"
+        },
+        {
+          "signal": "把概念混同为相邻概念",
+          "error_type": "boundary",
+          "feedback": "先比较两个概念的适用条件。"
+        }
+      ],
+      "partial_credit_rules": [
+        "定义正确但用途不清，给部分分",
+        "能举例但不能抽象定义，给部分分",
+        "只有术语复述，不算通过"
+      ],
+      "error_type_mapping": {
+        "missing_definition": "conceptual",
+        "missing_function": "conceptual",
+        "confused_with_neighbor": "boundary"
+      }
+    },
+    {
+      "id": "SK-001-R02",
+      "question_type": "argument_analysis",
+      "recommended_format": "short_argument",
+      "must_hit": [
+        "指出错误理解中的关键偏差",
+        "解释偏差为什么会影响结论",
+        "给出更准确的改写"
+      ],
+      "common_failures": [
+        {
+          "signal": "只说不对，没有定位错误",
+          "error_type": "argument_analysis",
+          "feedback": "需要指出错误发生在定义、条件还是推理步骤。"
+        },
+        {
+          "signal": "修正表述仍然过宽或过窄",
+          "error_type": "boundary",
+          "feedback": "检查概念适用边界。"
+        }
+      ],
+      "partial_credit_rules": [
+        "能定位错误但不能修正，给部分分",
+        "能修正但解释不足，给部分分",
+        "只重复原题，不算通过"
+      ],
+      "error_type_mapping": {
+        "cannot_locate_error": "argument_analysis",
+        "overbroad_revision": "boundary",
+        "underspecified_revision": "conceptual"
+      }
+    },
+    {
+      "id": "SK-001-R03",
+      "question_type": "boundary",
+      "recommended_format": "multiple_choice_explained",
+      "must_hit": [
+        "作出明确判断",
+        "说明适用条件",
+        "能排除关键干扰项"
+      ],
+      "common_failures": [
+        {
+          "signal": "选对但解释不出理由",
+          "error_type": "retrieval",
+          "feedback": "需要回到适用条件，而不是凭直觉选择。"
+        },
+        {
+          "signal": "把边界项当作典型项",
+          "error_type": "boundary",
+          "feedback": "区分典型适用、边界适用和不适用。"
+        }
+      ],
+      "partial_credit_rules": [
+        "选择正确但理由薄弱，给部分分",
+        "理由正确但选择错误，需看是否误读题干",
+        "没有解释理由，不算完整通过"
+      ],
+      "error_type_mapping": {
+        "right_choice_weak_reason": "retrieval",
+        "boundary_misread": "boundary",
+        "distractor_selected": "conceptual"
+      }
+    },
+    {
+      "id": "SK-001-R04",
+      "question_type": "scenario",
+      "recommended_format": "short_answer",
+      "must_hit": [
+        "识别情境中的相关结构",
+        "把概念迁移到新情境",
+        "说明迁移的限制或条件"
+      ],
+      "common_failures": [
+        {
+          "signal": "只复述概念，没有分析情境",
+          "error_type": "transfer",
+          "feedback": "需要指出情境中哪些信息触发这个概念。"
+        },
+        {
+          "signal": "迁移过度，忽略限制条件",
+          "error_type": "boundary",
+          "feedback": "说明这个概念不能解释什么。"
+        }
+      ],
+      "partial_credit_rules": [
+        "能识别情境但迁移不完整，给部分分",
+        "能迁移但没有说明限制，给部分分",
+        "只给例子不做分析，不算通过"
+      ],
+      "error_type_mapping": {
+        "no_scenario_analysis": "transfer",
+        "overtransfer": "boundary",
+        "example_only": "conceptual"
+      }
+    },
+    {
+      "id": "SK-001-R05",
+      "question_type": "conceptual",
+      "recommended_format": "multiple_choice_explained",
+      "must_hit": [
+        "选出最准确表述",
+        "说明选择依据",
+        "至少排除一个关键干扰项"
+      ],
+      "common_failures": [
+        {
+          "signal": "选项正确但理由停留在直觉",
+          "error_type": "retrieval",
+          "feedback": "需要把理由落到概念定义或适用条件。"
+        },
+        {
+          "signal": "被过宽或过窄表述吸引",
+          "error_type": "boundary",
+          "feedback": "比较选项覆盖范围和真实定义范围。"
+        }
+      ],
+      "partial_credit_rules": [
+        "选择正确但解释不足，给部分分",
+        "能排除干扰项但最终选择错误，给少量部分分",
+        "没有解释理由，不算完整通过"
+      ],
+      "error_type_mapping": {
+        "right_choice_no_reason": "retrieval",
+        "overbroad_choice": "boundary",
+        "too_narrow_choice": "boundary"
+      }
+    },
+    {
+      "id": "SK-001-R06",
+      "question_type": "counterexample",
+      "recommended_format": "counterexample",
+      "must_hit": [
+        "构造具体反例",
+        "指出反例破坏的条件",
+        "说明原判断为什么因此失败"
+      ],
+      "common_failures": [
+        {
+          "signal": "给出的是普通例子，不是反例",
+          "error_type": "boundary",
+          "feedback": "反例必须能破坏原判断或暴露条件缺失。"
+        },
+        {
+          "signal": "反例有效但没有解释机制",
+          "error_type": "argument_analysis",
+          "feedback": "需要说明反例如何推翻原判断。"
+        }
+      ],
+      "partial_credit_rules": [
+        "反例方向正确但不够具体，给部分分",
+        "反例具体但解释不足，给部分分",
+        "只重述定义，不算反例"
+      ],
+      "error_type_mapping": {
+        "not_counterexample": "boundary",
+        "weak_mechanism": "argument_analysis",
+        "definition_only": "conceptual"
+      }
+    },
+    {
+      "id": "SK-001-R07",
+      "question_type": "boundary",
+      "recommended_format": "short_argument",
+      "must_hit": [
+        "指出边界案例的两侧理由",
+        "说明最终判断依据",
+        "避免把边界问题简化成单一标签"
+      ],
+      "common_failures": [
+        {
+          "signal": "只给结论，没有说明边界理由",
+          "error_type": "boundary",
+          "feedback": "需要解释它为什么接近适用条件，同时又不是典型案例。"
+        },
+        {
+          "signal": "把边界案例当成普通反例",
+          "error_type": "conceptual",
+          "feedback": "先区分反例、边界案例和典型案例。"
+        }
+      ],
+      "partial_credit_rules": [
+        "能给结论但边界理由不足，给部分分",
+        "能说明两侧理由但判断不稳，给部分分",
+        "只做二分判断，不算完整通过"
+      ],
+      "error_type_mapping": {
+        "no_boundary_reason": "boundary",
+        "treated_as_counterexample": "conceptual",
+        "binary_only": "boundary"
+      }
+    }
+  ]
+}

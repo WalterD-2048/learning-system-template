@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learning-system-template.local/schema/question_bank.schema.json",
+  "title": "Skill Question Bank",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skill_id", "skill_name", "entries"],
+  "properties": {
+    "skill_id": {
+      "type": "string",
+      "pattern": "^SK-[0-9A-Z]+$"
+    },
+    "skill_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "coverage",
+          "question_type",
+          "recommended_format",
+          "prompt",
+          "source_sections",
+          "expected_points",
+          "stage_fit",
+          "difficulty",
+          "rubric_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "coverage": {
+            "type": "string",
+            "enum": ["core", "misconception", "boundary", "transfer", "bridge"]
+          },
+          "family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question_type": {
+            "type": "string",
+            "enum": [
+              "conceptual",
+              "scenario",
+              "boundary",
+              "argument_analysis",
+              "counterexample",
+              "cross_skill"
+            ]
+          },
+          "recommended_format": {
+            "type": "string",
+            "enum": [
+              "full_solution",
+              "scaffolded_fill",
+              "independent_short",
+              "short_answer",
+              "short_argument",
+              "counterexample",
+              "multiple_choice_explained"
+            ]
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_sections": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "expected_points": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "related_skills": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^SK-[0-9A-Z]+$"
+            }
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
+          "stage_fit": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "demo_worked",
+                "demo_faded",
+                "demo_independent",
+                "practice",
+                "review"
+              ]
+            }
+          },
+          "rubric_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

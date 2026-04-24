@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learning-system-template.local/schema/rubric.schema.json",
+  "title": "Skill Rubric",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skill_id", "rubrics"],
+  "properties": {
+    "skill_id": {
+      "type": "string",
+      "pattern": "^SK-[0-9A-Z]+$"
+    },
+    "rubrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "question_type",
+          "recommended_format",
+          "must_hit",
+          "common_failures",
+          "partial_credit_rules",
+          "error_type_mapping"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recommended_format": {
+            "type": "string",
+            "minLength": 1
+          },
+          "must_hit": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "common_failures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["signal", "error_type", "feedback"],
+              "properties": {
+                "signal": {"type": "string", "minLength": 1},
+                "error_type": {"type": "string", "minLength": 1},
+                "feedback": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "partial_credit_rules": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "error_type_mapping": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

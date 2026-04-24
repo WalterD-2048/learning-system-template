@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "system_name": "替换为新学习系统名称",
+    "subject": "替换为新学习系统主题",
+    "version": "template-v1",
+    "created": "2026-04-24",
+    "last_modified": "2026-04-24",
+    "notes": "复制模板后，把示例技能点替换为真实技能图谱。"
+  },
+  "skills": {
+    "SK-001": {
+      "name": "示例：核心概念入口",
+      "description": "替换为第一个技能点。这个技能点应该足够小，可以在一节概念课内讲清。",
+      "prerequisites": [],
+      "source": {
+        "textbook": "替换为资料来源",
+        "chapter": "替换为章节",
+        "section": "替换为小节或段落锚点"
+      },
+      "complexity": "medium",
+      "status": "demo_done",
+      "dates": {
+        "concept_completed": "2026-04-24",
+        "demo_completed": "2026-04-24"
+      },
+      "practice_history": [],
+      "consecutive_failures": 0,
+      "bound_exercises": [],
+      "exercise_anchor": "替换为原文、例题、公式、案例或操作步骤锚点",
+      "mastery_score": 0.45
+    },
+    "SK-002": {
+      "name": "示例：第二个技能点",
+      "description": "替换为第二个技能点。它依赖 SK-001，因此初始状态保持 locked。",
+      "prerequisites": [
+        "SK-001"
+      ],
+      "source": {
+        "textbook": "替换为资料来源",
+        "chapter": "替换为章节",
+        "section": "替换为小节或段落锚点"
+      },
+      "complexity": "medium",
+      "status": "locked",
+      "dates": {},
+      "practice_history": [],
+      "consecutive_failures": 0,
+      "bound_exercises": [],
+      "exercise_anchor": "替换为原文、例题、公式、案例或操作步骤锚点",
+      "mastery_score": 0.0
+    },
+    "SK-003": {
+      "name": "示例：迁移或综合技能点",
+      "description": "替换为第三个技能点。它可用于测试前两个技能点之间的桥接和迁移。",
+      "prerequisites": [
+        "SK-001",
+        "SK-002"
+      ],
+      "source": {
+        "textbook": "替换为资料来源",
+        "chapter": "替换为章节",
+        "section": "替换为小节或段落锚点"
+      },
+      "complexity": "high",
+      "status": "locked",
+      "dates": {},
+      "practice_history": [],
+      "consecutive_failures": 0,
+      "bound_exercises": [],
+      "exercise_anchor": "替换为原文、例题、公式、案例或操作步骤锚点",
+      "mastery_score": 0.0
+    }
+  }
+}
