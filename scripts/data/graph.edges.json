@@ -1,0 +1,253 @@
+{
+  "schema_version": "knowledge_graph.edges.v2",
+  "edges": [
+    {
+      "from": "SK-001",
+      "to": "SK-002",
+      "type": "prerequisite",
+      "weight": 1.0,
+      "confidence": 0.9,
+      "min_mastery": 0.75,
+      "used_by": ["unlock", "diagnostic", "task_selection"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SK-001",
+      "type": "encompasses",
+      "weight": 0.35,
+      "confidence": 0.75,
+      "used_by": ["fire", "task_selection"]
+    },
+    {
+      "from": "SK-001",
+      "to": "SK-003",
+      "type": "prerequisite",
+      "weight": 0.8,
+      "confidence": 0.85,
+      "min_mastery": 0.75,
+      "used_by": ["unlock", "diagnostic", "task_selection"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SK-003",
+      "type": "prerequisite",
+      "weight": 1.0,
+      "confidence": 0.9,
+      "min_mastery": 0.75,
+      "used_by": ["unlock", "diagnostic", "task_selection"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SK-001",
+      "type": "encompasses",
+      "weight": 0.25,
+      "confidence": 0.7,
+      "used_by": ["fire", "task_selection"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SK-002",
+      "type": "encompasses",
+      "weight": 0.4,
+      "confidence": 0.75,
+      "used_by": ["fire", "task_selection"]
+    },
+    {
+      "from": "SK-001",
+      "to": "SRC-SK-001",
+      "type": "source_anchor",
+      "confidence": 1.0,
+      "used_by": ["audit"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SRC-SK-002",
+      "type": "source_anchor",
+      "confidence": 1.0,
+      "used_by": ["audit"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SRC-SK-003",
+      "type": "source_anchor",
+      "confidence": 1.0,
+      "used_by": ["audit"]
+    },
+    {
+      "from": "SK-001",
+      "to": "SK-001-Q01",
+      "type": "assessed_by",
+      "weight": 1.0,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-001",
+      "to": "SK-001-Q02",
+      "type": "assessed_by",
+      "weight": 0.8,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-001",
+      "to": "SK-001-Q03",
+      "type": "assessed_by",
+      "weight": 0.85,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-001",
+      "to": "SK-001-Q04",
+      "type": "assessed_by",
+      "weight": 0.75,
+      "confidence": 0.8,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SK-002-Q01",
+      "type": "assessed_by",
+      "weight": 0.65,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SK-002-Q02",
+      "type": "assessed_by",
+      "weight": 0.85,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SK-002-Q03",
+      "type": "assessed_by",
+      "weight": 0.8,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SK-002-Q04",
+      "type": "assessed_by",
+      "weight": 0.9,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-002",
+      "to": "SK-002-Q05",
+      "type": "assessed_by",
+      "weight": 0.8,
+      "confidence": 0.8,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SK-003-Q01",
+      "type": "assessed_by",
+      "weight": 0.65,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SK-003-Q02",
+      "type": "assessed_by",
+      "weight": 0.85,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SK-003-Q03",
+      "type": "assessed_by",
+      "weight": 0.8,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SK-003-Q04",
+      "type": "assessed_by",
+      "weight": 0.9,
+      "confidence": 0.85,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "SK-003",
+      "to": "SK-003-Q05",
+      "type": "assessed_by",
+      "weight": 0.8,
+      "confidence": 0.8,
+      "used_by": ["diagnostic", "task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-conceptual",
+      "to": "SK-001",
+      "type": "remediates",
+      "weight": 0.9,
+      "confidence": 0.8,
+      "used_by": ["task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-argument_analysis",
+      "to": "SK-001",
+      "type": "remediates",
+      "weight": 0.75,
+      "confidence": 0.75,
+      "used_by": ["task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-boundary",
+      "to": "SK-001",
+      "type": "remediates",
+      "weight": 0.85,
+      "confidence": 0.8,
+      "used_by": ["task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-transfer",
+      "to": "SK-001",
+      "type": "remediates",
+      "weight": 0.8,
+      "confidence": 0.75,
+      "used_by": ["task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-prerequisite",
+      "to": "SK-001",
+      "type": "remediates",
+      "weight": 0.8,
+      "confidence": 0.75,
+      "used_by": ["task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-prerequisite",
+      "to": "SK-002",
+      "type": "remediates",
+      "weight": 0.6,
+      "confidence": 0.7,
+      "used_by": ["task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-prerequisite",
+      "to": "SK-003",
+      "type": "remediates",
+      "weight": 0.6,
+      "confidence": 0.7,
+      "used_by": ["task_selection", "analytics"]
+    },
+    {
+      "from": "ERR-transfer",
+      "to": "SK-003",
+      "type": "remediates",
+      "weight": 0.75,
+      "confidence": 0.7,
+      "used_by": ["task_selection", "analytics"]
+    }
+  ]
+}
