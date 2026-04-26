@@ -26,7 +26,7 @@ from engine.graph import (
     PREREQUISITE,
     confusable_ids,
     dependent_ids,
-    edges_to,
+    edges_from,
     encompassed_components,
     get_skills,
     load_graph,
@@ -133,9 +133,9 @@ def failure_suggestions(
     remediation_targets = []
     for error_type in error_types:
         err_node = f"ERR-{error_type}"
-        for edge in edges_to(graph, err_node):
+        for edge in edges_from(graph, err_node, include_legacy=False):
             if edge.get("type") == "remediates":
-                remediation_targets.append(str(edge.get("from")))
+                remediation_targets.append(str(edge.get("to")))
     remediation_targets = sorted(set(target for target in remediation_targets if target))
 
     return {
