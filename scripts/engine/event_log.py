@@ -24,9 +24,24 @@ except ImportError:
 console = Console()
 
 DATA_DIR = Path(__file__).parent.parent / "data"
+CONTENT_DIR = Path(__file__).parent.parent / "content"
 EVENT_DIR = DATA_DIR / "events"
+QUESTION_BANK_DIR = CONTENT_DIR / "question_banks"
 
 ANSWER_EVENT_TYPE = "answer_submitted"
+ITEM_EVIDENCE_FIELDS = {
+    "skill_vector",
+    "target_edge",
+    "target_edges",
+    "misconception_targets",
+    "difficulty_param",
+    "discrimination",
+    "expected_time_sec",
+    "requires_automaticity",
+    "allowed_hints",
+    "variant_family",
+    "surface_similarity_group",
+}
 
 
 def now_iso() -> str:
@@ -62,6 +77,13 @@ def _normalize_list(raw: Any) -> list[Any]:
     return [raw]
 
 
+def _evidence_maps(raw_payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    maps: dict[str, dict[str, Any]] = {}
+    for field in ITEM_EVIDENCE_FIELDS:
+        maps[field] = _normalize_map(raw_payload.get(field))
+    return maps
+
+
 def _normalize_used_exercises(raw: Any) -> list[str]:
     if raw is None:
         return []
@@ -78,6 +100,53 @@ def _normalize_used_exercises(raw: Any) -> list[str]:
                 exercises.append(str(value))
         return exercises
     return [str(raw)]
+
+
+def load_question_index() -> dict[str, dict[str, Any]]:
+    index: dict[str, dict[str, Any]] = {}
+    if not QUESTION_BANK_DIR.exists():
+        return index
+    for path in sorted(QUESTION_BANK_DIR.glob("*.json")):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+        for entry in payload.get("entries", []):
+            if isinstance(entry, dict) and entry.get("id"):
+                index[str(entry["id"])] = entry
+    return index
+
+
+def item_evidence(entry: Optional[dict[str, Any]]) -> dict[str, Any]:
+    if not isinstance(entry, dict):
+        return {}
+    evidence = {
+        field: entry[field]
+        for field in ITEM_EVIDENCE_FIELDS
+        if entry.get(field) is not None
+    }
+    if "target_edge" in evidence and "target_edges" not in evidence:
+        evidence["target_edges"] = [evidence.pop("target_edge")]
+    return evidence
+
+
+def enrich_answer_event(
+    event: dict[str, Any],
+    question_index: Optional[dict[str, dict[str, Any]]] = None,
+) -> dict[str, Any]:
+    question_index = question_index if question_index is not None else load_question_index()
+    enriched = dict(event)
+    enriched.update({
+        key: value
+        for key, value in item_evidence(question_index.get(str(event.get("question_id", "")))).items()
+        if key not in enriched
+    })
+    if "target_edge" in enriched and "target_edges" not in enriched:
+        enriched["target_edges"] = [enriched.pop("target_edge")]
+    return enriched
 
 
 def parse_answer_result(raw_result: str) -> tuple[str, Optional[str]]:
@@ -109,6 +178,7 @@ def parse_result_payload(raw_payload: dict[str, Any]) -> tuple[dict[str, str], d
     response_times: dict[str, Any] = {}
     hint_used: dict[str, Any] = {}
     rubric_hits: dict[str, Any] = {}
+    evidence_maps: dict[str, dict[str, Any]] = {}
     used_exercises: list[str] = []
 
     if "questions" in raw_payload:
@@ -143,6 +213,9 @@ def parse_result_payload(raw_payload: dict[str, Any]) -> tuple[dict[str, str], d
                 hint_used[q_key] = question_data["hint_used"]
             if question_data.get("rubric_hits") is not None:
                 rubric_hits[q_key] = question_data["rubric_hits"]
+            for field in ITEM_EVIDENCE_FIELDS:
+                if question_data.get(field) is not None:
+                    evidence_maps.setdefault(field, {})[q_key] = question_data[field]
             used_exercises.extend(
                 _normalize_used_exercises(
                     question_data.get("used_exercises", question_data.get("used_exercise"))
@@ -159,6 +232,7 @@ def parse_result_payload(raw_payload: dict[str, Any]) -> tuple[dict[str, str], d
         response_times = _normalize_map(raw_payload.get("response_time_sec"))
         hint_used = _normalize_map(raw_payload.get("hint_used"))
         rubric_hits = _normalize_map(raw_payload.get("rubric_hits"))
+        evidence_maps = _evidence_maps(raw_payload)
         used_exercises = _normalize_used_exercises(raw_payload.get("used_exercises"))
     else:
         answers = {str(key): str(value) for key, value in raw_payload.items()}
@@ -175,6 +249,7 @@ def parse_result_payload(raw_payload: dict[str, Any]) -> tuple[dict[str, str], d
         "response_time_sec": response_times,
         "hint_used": hint_used,
         "rubric_hits": rubric_hits,
+        "evidence_maps": evidence_maps,
         "session_id": raw_payload.get("session_id"),
     }
     return answers, metadata
@@ -207,6 +282,10 @@ def build_answer_events(
     response_times = _normalize_map(metadata.get("response_time_sec"))
     hint_used = _normalize_map(metadata.get("hint_used"))
     rubric_hits = _normalize_map(metadata.get("rubric_hits"))
+    evidence_maps = {
+        field: _normalize_map(values)
+        for field, values in _normalize_map(metadata.get("evidence_maps")).items()
+    }
     used_exercises = _normalize_used_exercises(metadata.get("used_exercises"))
     session_id = metadata.get("session_id")
 
@@ -236,6 +315,9 @@ def build_answer_events(
             "hint_used": hint_used.get(question_num),
             "rubric_hits": _normalize_list(rubric_hits.get(question_num)),
         }
+        for field, values in evidence_maps.items():
+            if values.get(question_num) is not None:
+                event[field] = values[question_num]
         events.append({key: value for key, value in event.items() if value is not None})
     return events
 
@@ -245,8 +327,9 @@ def append_answer_events(
     answers: dict[str, str],
     metadata: Optional[dict[str, Any]] = None,
 ) -> list[dict[str, Any]]:
+    question_index = load_question_index()
     return [
-        append_event(ANSWER_EVENT_TYPE, event)
+        append_event(ANSWER_EVENT_TYPE, enrich_answer_event(event, question_index))
         for event in build_answer_events(session_skill_id, answers, metadata)
     ]
 
@@ -297,8 +380,7 @@ def record_answer(
 ):
     """Append one answer_submitted event."""
     normalized_result, parsed_error_type = parse_answer_result(result)
-    event = append_event(
-        ANSWER_EVENT_TYPE,
+    payload = enrich_answer_event(
         {
             "session_id": session_id,
             "session_skill_id": session_skill_id or skill_id,
@@ -312,7 +394,11 @@ def record_answer(
             "response_time_sec": response_time_sec,
             "hint_used": hint_used,
             "rubric_hits": list(rubric_hit),
-        },
+        }
+    )
+    event = append_event(
+        ANSWER_EVENT_TYPE,
+        payload,
     )
     console.print(json.dumps(event, ensure_ascii=False, indent=2))
 
