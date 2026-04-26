@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/learning-system-template/knowledge_graph.schema.json",
+  "title": "Knowledge Graph v2",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^knowledge_graph\\.(nodes|edges|v2)"
+    },
+    "nodes": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    }
+  },
+  "anyOf": [
+    {"required": ["nodes"]},
+    {"required": ["edges"]}
+  ],
+  "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type", "name"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "type": {
+          "type": "string",
+          "enum": [
+            "skill",
+            "concept",
+            "misconception",
+            "question",
+            "source_anchor",
+            "learning_objective"
+          ]
+        },
+        "name": {"type": "string", "minLength": 1},
+        "description": {"type": "string"},
+        "granularity": {
+          "type": "string",
+          "enum": ["micro", "small", "medium", "large"]
+        },
+        "source_anchors": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "complexity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "importance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "status": {"type": "string"}
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["from", "to", "type"],
+      "properties": {
+        "from": {"type": "string", "minLength": 1},
+        "to": {"type": "string", "minLength": 1},
+        "type": {
+          "type": "string",
+          "enum": [
+            "prerequisite",
+            "encompasses",
+            "component_of",
+            "confusable_with",
+            "remediates",
+            "transfers_to",
+            "source_anchor",
+            "assessed_by",
+            "variant_of"
+          ]
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "min_mastery": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "used_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["unlock", "fire", "diagnostic", "task_selection", "analytics", "audit"]
+          }
+        },
+        "evidence": {"type": "string"}
+      }
+    }
+  }
+}
