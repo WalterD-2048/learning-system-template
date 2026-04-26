@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/learning-system-template/event_log.schema.json",
+  "title": "Item-Level Answer Event",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["event_id", "timestamp", "event_type"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "timestamp": {"type": "string", "minLength": 1},
+    "event_type": {"type": "string", "enum": ["answer_submitted"]},
+    "session_id": {"type": ["string", "null"]},
+    "session_skill_id": {"type": "string", "pattern": "^SK-[0-9A-Z]+$"},
+    "skill_id": {"type": "string", "pattern": "^SK-[0-9A-Z]+$"},
+    "question_index": {"type": "string"},
+    "question_id": {"type": "string", "minLength": 1},
+    "result": {"type": "string", "enum": ["correct", "wrong", "partial"]},
+    "raw_result": {"type": "string"},
+    "error_type": {"type": ["string", "null"]},
+    "question_type": {"type": ["string", "null"]},
+    "answer_format": {"type": ["string", "null"]},
+    "skill_vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^SK-[0-9A-Z]+$": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "target_edges": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "misconception_targets": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "difficulty_param": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "discrimination": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 2
+    },
+    "expected_time_sec": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "response_time_sec": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0
+    },
+    "hint_used": {"type": ["boolean", "null"]},
+    "allowed_hints": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rubric_hits": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "variant_family": {"type": "string"},
+    "surface_similarity_group": {"type": "string"}
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "skill_id": "SK-002",
+  "skill_name": "Example: dependent skill",
+  "source": {
+    "textbook": "replace",
+    "chapter": "replace",
+    "section": "replace"
+  },
+  "entries": [
+    {
+      "id": "SK-002-Q01",
+      "coverage": "bridge",
+      "family": "prerequisite_bridge",
+      "question_type": "cross_skill",
+      "recommended_format": "short_answer",
+      "prompt": "Use SK-001 to explain why SK-002 is now ready to learn.",
+      "source_sections": ["replace"],
+      "expected_points": ["connect prerequisite", "name dependency"],
+      "related_skills": ["SK-001"],
+      "skill_vector": {
+        "SK-002": 0.65,
+        "SK-001": 0.35
+      },
+      "target_edges": ["SK-001->SK-002:prerequisite"],
+      "misconception_targets": ["prerequisite"],
+      "difficulty": "low",
+      "difficulty_param": 0.35,
+      "discrimination": 0.9,
+      "expected_time_sec": 75,
+      "stage_fit": ["demo_worked", "practice", "review"],
+      "rubric_id": "SK-002-R01"
+    },
+    {
+      "id": "SK-002-Q02",
+      "coverage": "core",
+      "family": "definition",
+      "question_type": "conceptual",
+      "recommended_format": "short_answer",
+      "prompt": "State the core move in SK-002 and why it differs from SK-001.",
+      "source_sections": ["replace"],
+      "expected_points": ["state core move", "contrast with prerequisite"],
+      "related_skills": ["SK-001"],
+      "skill_vector": {
+        "SK-002": 0.85,
+        "SK-001": 0.15
+      },
+      "misconception_targets": ["conceptual"],
+      "difficulty": "medium",
+      "difficulty_param": 0.45,
+      "discrimination": 1.0,
+      "expected_time_sec": 90,
+      "stage_fit": ["demo_faded", "practice", "review"],
+      "rubric_id": "SK-002-R02"
+    },
+    {
+      "id": "SK-002-Q03",
+      "coverage": "misconception",
+      "family": "confused_with_prerequisite",
+      "question_type": "argument_analysis",
+      "recommended_format": "short_argument",
+      "prompt": "A learner applies SK-001 directly and gets the wrong conclusion. Locate the failed step and repair it using SK-002.",
+      "source_sections": ["replace"],
+      "expected_points": ["locate failed step", "repair with SK-002"],
+      "related_skills": ["SK-001"],
+      "skill_vector": {
+        "SK-002": 0.8,
+        "SK-001": 0.2
+      },
+      "misconception_targets": ["argument_analysis", "prerequisite"],
+      "difficulty": "medium",
+      "difficulty_param": 0.6,
+      "discrimination": 1.1,
+      "expected_time_sec": 120,
+      "stage_fit": ["practice", "review"],
+      "rubric_id": "SK-002-R03"
+    },
+    {
+      "id": "SK-002-Q04",
+      "coverage": "boundary",
+      "family": "boundary",
+      "question_type": "boundary",
+      "recommended_format": "short_argument",
+      "prompt": "Give one case where SK-002 applies and one nearby case where it does not.",
+      "source_sections": ["replace"],
+      "expected_points": ["valid case", "invalid nearby case", "boundary reason"],
+      "related_skills": ["SK-001"],
+      "skill_vector": {
+        "SK-002": 0.9,
+        "SK-001": 0.1
+      },
+      "misconception_targets": ["boundary"],
+      "difficulty": "medium",
+      "difficulty_param": 0.65,
+      "discrimination": 1.1,
+      "expected_time_sec": 120,
+      "stage_fit": ["practice", "review"],
+      "rubric_id": "SK-002-R04"
+    },
+    {
+      "id": "SK-002-Q05",
+      "coverage": "transfer",
+      "family": "scenario",
+      "question_type": "scenario",
+      "recommended_format": "short_answer",
+      "prompt": "Apply SK-002 in a new scenario and name the prerequisite from SK-001 that you used.",
+      "source_sections": ["replace"],
+      "expected_points": ["apply SK-002", "name prerequisite", "state limitation"],
+      "related_skills": ["SK-001"],
+      "skill_vector": {
+        "SK-002": 0.8,
+        "SK-001": 0.2
+      },
+      "misconception_targets": ["transfer"],
+      "difficulty": "high",
+      "difficulty_param": 0.75,
+      "discrimination": 1.2,
+      "expected_time_sec": 150,
+      "stage_fit": ["demo_independent", "practice", "review"],
+      "rubric_id": "SK-002-R05"
+    }
+  ]
+}

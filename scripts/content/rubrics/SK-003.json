@@ -1,0 +1,90 @@
+{
+  "skill_id": "SK-003",
+  "rubrics": [
+    {
+      "id": "SK-003-R01",
+      "question_type": "cross_skill",
+      "recommended_format": "short_argument",
+      "must_hit": ["name both prerequisites", "explain combination"],
+      "common_failures": [
+        {
+          "signal": "Uses only one prerequisite",
+          "error_type": "prerequisite",
+          "feedback": "Name both prerequisite roles before attempting the synthesis."
+        }
+      ],
+      "partial_credit_rules": ["Names both prerequisites but does not explain their combination gets partial credit."],
+      "error_type_mapping": {
+        "missing_one_prerequisite": "prerequisite"
+      }
+    },
+    {
+      "id": "SK-003-R02",
+      "question_type": "conceptual",
+      "recommended_format": "short_answer",
+      "must_hit": ["state synthesis", "map prerequisite roles"],
+      "common_failures": [
+        {
+          "signal": "Describes a list of steps without the synthesis relation",
+          "error_type": "conceptual",
+          "feedback": "State how the prerequisite pieces combine into a new move."
+        }
+      ],
+      "partial_credit_rules": ["States the synthesis but weakly maps prerequisite roles gets partial credit."],
+      "error_type_mapping": {
+        "missing_synthesis": "conceptual"
+      }
+    },
+    {
+      "id": "SK-003-R03",
+      "question_type": "argument_analysis",
+      "recommended_format": "short_argument",
+      "must_hit": ["identify missing prerequisite", "repair synthesis"],
+      "common_failures": [
+        {
+          "signal": "Repairs the local step but not the synthesis",
+          "error_type": "argument_analysis",
+          "feedback": "Repair the reasoning by reconnecting both prerequisites."
+        }
+      ],
+      "partial_credit_rules": ["Identifies the missing prerequisite without repairing the synthesis gets partial credit."],
+      "error_type_mapping": {
+        "partial_synthesis_repair": "argument_analysis"
+      }
+    },
+    {
+      "id": "SK-003-R04",
+      "question_type": "boundary",
+      "recommended_format": "short_argument",
+      "must_hit": ["case requiring synthesis", "case not requiring synthesis", "boundary reason"],
+      "common_failures": [
+        {
+          "signal": "Cannot distinguish SK-002 alone from SK-003",
+          "error_type": "boundary",
+          "feedback": "Separate the condition that requires synthesis from the condition that does not."
+        }
+      ],
+      "partial_credit_rules": ["Gives two cases without a boundary reason gets partial credit."],
+      "error_type_mapping": {
+        "synthesis_boundary_missing": "boundary"
+      }
+    },
+    {
+      "id": "SK-003-R05",
+      "question_type": "scenario",
+      "recommended_format": "short_answer",
+      "must_hit": ["apply synthesis", "name prerequisite roles", "state limitation"],
+      "common_failures": [
+        {
+          "signal": "Applies the pattern without explaining prerequisite roles",
+          "error_type": "transfer",
+          "feedback": "Tie each part of the scenario response back to the prerequisite it uses."
+        }
+      ],
+      "partial_credit_rules": ["Applies SK-003 but omits a limitation gets partial credit."],
+      "error_type_mapping": {
+        "weak_synthesis_transfer": "transfer"
+      }
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "skill_id": "SK-003",
+  "skill_name": "Example: transfer or synthesis skill",
+  "source": {
+    "textbook": "replace",
+    "chapter": "replace",
+    "section": "replace"
+  },
+  "entries": [
+    {
+      "id": "SK-003-Q01",
+      "coverage": "bridge",
+      "family": "multi_prerequisite_bridge",
+      "question_type": "cross_skill",
+      "recommended_format": "short_argument",
+      "prompt": "Explain how SK-001 and SK-002 combine to make SK-003 possible.",
+      "source_sections": ["replace"],
+      "expected_points": ["name both prerequisites", "explain combination"],
+      "related_skills": ["SK-001", "SK-002"],
+      "skill_vector": {
+        "SK-003": 0.55,
+        "SK-002": 0.3,
+        "SK-001": 0.15
+      },
+      "target_edges": ["SK-001->SK-003:prerequisite", "SK-002->SK-003:prerequisite"],
+      "misconception_targets": ["prerequisite"],
+      "difficulty": "medium",
+      "difficulty_param": 0.5,
+      "discrimination": 1.0,
+      "expected_time_sec": 110,
+      "stage_fit": ["demo_worked", "practice", "review"],
+      "rubric_id": "SK-003-R01"
+    },
+    {
+      "id": "SK-003-Q02",
+      "coverage": "core",
+      "family": "synthesis_definition",
+      "question_type": "conceptual",
+      "recommended_format": "short_answer",
+      "prompt": "State the core synthesis move in SK-003 and identify which part comes from SK-001 and which from SK-002.",
+      "source_sections": ["replace"],
+      "expected_points": ["state synthesis", "map prerequisite roles"],
+      "related_skills": ["SK-001", "SK-002"],
+      "skill_vector": {
+        "SK-003": 0.8,
+        "SK-002": 0.15,
+        "SK-001": 0.05
+      },
+      "misconception_targets": ["conceptual"],
+      "difficulty": "medium",
+      "difficulty_param": 0.55,
+      "discrimination": 1.0,
+      "expected_time_sec": 100,
+      "stage_fit": ["demo_faded", "practice", "review"],
+      "rubric_id": "SK-003-R02"
+    },
+    {
+      "id": "SK-003-Q03",
+      "coverage": "misconception",
+      "family": "partial_synthesis",
+      "question_type": "argument_analysis",
+      "recommended_format": "short_argument",
+      "prompt": "A learner uses only one prerequisite and misses the synthesis. Identify what is missing and repair the reasoning.",
+      "source_sections": ["replace"],
+      "expected_points": ["identify missing prerequisite", "repair synthesis"],
+      "related_skills": ["SK-001", "SK-002"],
+      "skill_vector": {
+        "SK-003": 0.75,
+        "SK-002": 0.15,
+        "SK-001": 0.1
+      },
+      "misconception_targets": ["argument_analysis", "prerequisite"],
+      "difficulty": "medium",
+      "difficulty_param": 0.65,
+      "discrimination": 1.1,
+      "expected_time_sec": 130,
+      "stage_fit": ["practice", "review"],
+      "rubric_id": "SK-003-R03"
+    },
+    {
+      "id": "SK-003-Q04",
+      "coverage": "boundary",
+      "family": "synthesis_boundary",
+      "question_type": "boundary",
+      "recommended_format": "short_argument",
+      "prompt": "Give one case where SK-003 is necessary and one case where SK-002 alone is enough.",
+      "source_sections": ["replace"],
+      "expected_points": ["case requiring synthesis", "case not requiring synthesis", "boundary reason"],
+      "related_skills": ["SK-002"],
+      "skill_vector": {
+        "SK-003": 0.85,
+        "SK-002": 0.15
+      },
+      "misconception_targets": ["boundary"],
+      "difficulty": "high",
+      "difficulty_param": 0.75,
+      "discrimination": 1.2,
+      "expected_time_sec": 150,
+      "stage_fit": ["practice", "review"],
+      "rubric_id": "SK-003-R04"
+    },
+    {
+      "id": "SK-003-Q05",
+      "coverage": "transfer",
+      "family": "synthesis_scenario",
+      "question_type": "scenario",
+      "recommended_format": "short_answer",
+      "prompt": "Apply SK-003 to a new scenario and explain which parts of the solution came from SK-001 and SK-002.",
+      "source_sections": ["replace"],
+      "expected_points": ["apply synthesis", "name prerequisite roles", "state limitation"],
+      "related_skills": ["SK-001", "SK-002"],
+      "skill_vector": {
+        "SK-003": 0.8,
+        "SK-002": 0.1,
+        "SK-001": 0.1
+      },
+      "misconception_targets": ["transfer"],
+      "difficulty": "high",
+      "difficulty_param": 0.8,
+      "discrimination": 1.2,
+      "expected_time_sec": 160,
+      "stage_fit": ["demo_independent", "practice", "review"],
+      "rubric_id": "SK-003-R05"
+    }
+  ]
+}

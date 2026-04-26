@@ -1,0 +1,123 @@
+{
+  "schema_version": "knowledge_graph.nodes.v2",
+  "nodes": {
+    "SK-001": {
+      "type": "skill",
+      "name": "Example: core concept entry",
+      "description": "A complete micro-skill example used by the template.",
+      "granularity": "micro",
+      "source_anchors": ["SRC-SK-001"],
+      "complexity": 0.45,
+      "importance": 0.9
+    },
+    "SK-002": {
+      "type": "skill",
+      "name": "Example: dependent skill",
+      "description": "A dependent micro-skill used to demonstrate prerequisite and FIRe edges.",
+      "granularity": "micro",
+      "source_anchors": ["SRC-SK-002"],
+      "complexity": 0.5,
+      "importance": 0.8
+    },
+    "SK-003": {
+      "type": "skill",
+      "name": "Example: transfer or synthesis skill",
+      "description": "A synthesis skill used to demonstrate multi-prerequisite frontier checks.",
+      "granularity": "micro",
+      "source_anchors": ["SRC-SK-003"],
+      "complexity": 0.7,
+      "importance": 0.75
+    },
+    "SRC-SK-001": {
+      "type": "source_anchor",
+      "name": "Source anchor for SK-001",
+      "description": "Replace with a precise section, paragraph, formula, example, or timestamp."
+    },
+    "SRC-SK-002": {
+      "type": "source_anchor",
+      "name": "Source anchor for SK-002",
+      "description": "Replace with the precise source span for the dependent skill."
+    },
+    "SRC-SK-003": {
+      "type": "source_anchor",
+      "name": "Source anchor for SK-003",
+      "description": "Replace with the precise source span for the synthesis skill."
+    },
+    "SK-001-Q01": {
+      "type": "question",
+      "name": "Core concept retrieval item"
+    },
+    "SK-001-Q02": {
+      "type": "question",
+      "name": "Misconception repair item"
+    },
+    "SK-001-Q03": {
+      "type": "question",
+      "name": "Boundary item"
+    },
+    "SK-001-Q04": {
+      "type": "question",
+      "name": "Transfer item"
+    },
+    "SK-002-Q01": {
+      "type": "question",
+      "name": "Prerequisite bridge item"
+    },
+    "SK-002-Q02": {
+      "type": "question",
+      "name": "Dependent skill core item"
+    },
+    "SK-002-Q03": {
+      "type": "question",
+      "name": "Dependent skill misconception repair item"
+    },
+    "SK-002-Q04": {
+      "type": "question",
+      "name": "Dependent skill boundary item"
+    },
+    "SK-002-Q05": {
+      "type": "question",
+      "name": "Dependent skill transfer item"
+    },
+    "SK-003-Q01": {
+      "type": "question",
+      "name": "Synthesis bridge item"
+    },
+    "SK-003-Q02": {
+      "type": "question",
+      "name": "Synthesis core item"
+    },
+    "SK-003-Q03": {
+      "type": "question",
+      "name": "Synthesis misconception repair item"
+    },
+    "SK-003-Q04": {
+      "type": "question",
+      "name": "Synthesis boundary item"
+    },
+    "SK-003-Q05": {
+      "type": "question",
+      "name": "Synthesis transfer item"
+    },
+    "ERR-conceptual": {
+      "type": "misconception",
+      "name": "Conceptual misunderstanding"
+    },
+    "ERR-argument_analysis": {
+      "type": "misconception",
+      "name": "Argument analysis failure"
+    },
+    "ERR-boundary": {
+      "type": "misconception",
+      "name": "Boundary overextension or underextension"
+    },
+    "ERR-transfer": {
+      "type": "misconception",
+      "name": "Transfer failure"
+    },
+    "ERR-prerequisite": {
+      "type": "misconception",
+      "name": "Prerequisite gap"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "version": "template-v1",
+  "error_types": [
+    {
+      "id": "conceptual",
+      "description": "The learner is missing or distorting the core concept."
+    },
+    {
+      "id": "boundary",
+      "description": "The learner is overextending, underextending, or misclassifying the concept boundary."
+    },
+    {
+      "id": "argument_analysis",
+      "description": "The learner cannot locate or repair an error in reasoning."
+    },
+    {
+      "id": "retrieval",
+      "description": "The learner may recognize the answer but cannot reliably retrieve or justify it."
+    },
+    {
+      "id": "transfer",
+      "description": "The learner cannot apply the concept in a new context."
+    },
+    {
+      "id": "procedural",
+      "description": "The learner knows the concept but fails in an execution step."
+    },
+    {
+      "id": "prerequisite",
+      "description": "The answer suggests an upstream prerequisite gap."
+    },
+    {
+      "id": "representation",
+      "description": "The learner fails to translate across notation, examples, diagrams, or verbal forms."
+    },
+    {
+      "id": "communication",
+      "description": "The learner's explanation is too vague or incomplete to verify mastery."
+    },
+    {
+      "id": "careless",
+      "description": "The learner likely made a slip rather than a durable conceptual error."
+    },
+    {
+      "id": "unspecified",
+      "description": "The result recorded an error without a more specific type."
+    }
+  ]
+}
