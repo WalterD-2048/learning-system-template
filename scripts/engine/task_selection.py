@@ -24,6 +24,7 @@ from engine.fire import calculate_fire_awards
 from engine.graph import (
     confusable_ids,
     dependent_ids,
+    edges_from,
     get_skills,
     load_graph,
     prerequisite_ids,
@@ -55,6 +56,7 @@ DEFAULT_WEIGHTS = {
     "frontier_value": 1.1,
     "diagnostic_information_gain": 1.2,
     "prerequisite_stabilization": 0.8,
+    "remediation_value": 1.5,
     "interference_penalty": 1.0,
     "frustration_risk": 1.3,
     "redundancy_penalty": 0.7,
@@ -181,12 +183,63 @@ def recent_error_pressure(skill: dict[str, Any]) -> float:
     return pressure
 
 
+def error_counts(skill: dict[str, Any]) -> dict[str, float]:
+    counts: dict[str, float] = {}
+    model = get_skill_student_model(skill)
+    for key, value in model.get("error_counts", {}).items():
+        counts[str(key)] = counts.get(str(key), 0.0) + float(value)
+    history = skill.get("practice_history", [])
+    if isinstance(history, list) and history:
+        last = history[-1] if isinstance(history[-1], dict) else {}
+        raw_counts = last.get("error_counts", {})
+        if isinstance(raw_counts, dict):
+            for key, value in raw_counts.items():
+                counts[str(key)] = counts.get(str(key), 0.0) + float(value)
+        for error in last.get("errors", []) if isinstance(last.get("errors"), list) else []:
+            counts[str(error)] = counts.get(str(error), 0.0) + 1.0
+    return counts
+
+
+def remediation_pressure_by_target(graph: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """
+    Aggregate error pressure through ERR-* -> skill remediates edges.
+    """
+    skills = get_skills(graph)
+    pressure: dict[str, dict[str, Any]] = {}
+    for source_skill_id, skill in skills.items():
+        for error_type, count in error_counts(skill).items():
+            err_node = f"ERR-{error_type}"
+            for edge in edges_from(graph, err_node, include_legacy=False):
+                if edge.get("type") != "remediates":
+                    continue
+                target = str(edge.get("to"))
+                if target not in skills:
+                    continue
+                weight = float(edge.get("weight", 1.0) or 1.0)
+                item = pressure.setdefault(
+                    target,
+                    {"pressure": 0.0, "sources": [], "error_types": set()},
+                )
+                item["pressure"] += float(count) * weight
+                item["sources"].append(source_skill_id)
+                item["error_types"].add(str(error_type))
+    normalized: dict[str, dict[str, Any]] = {}
+    for skill_id, item in pressure.items():
+        normalized[skill_id] = {
+            "pressure": round(float(item["pressure"]), 4),
+            "sources": sorted(set(item["sources"])),
+            "error_types": sorted(item["error_types"]),
+        }
+    return normalized
+
+
 def candidate_task_types(
     graph: dict[str, Any],
     skill_id: str,
     target_skill_id: Optional[str] = None,
     today: Optional[date] = None,
     at_time: Optional[str] = None,
+    remediation_pressure: Optional[dict[str, Any]] = None,
 ) -> list[dict[str, Any]]:
     skills = get_skills(graph)
     skill = skills[skill_id]
@@ -212,6 +265,14 @@ def candidate_task_types(
 
     if errors > 0 and status != "locked":
         tasks.append({"task_type": TASK_REMEDIATE, "trigger": "recent_errors", "error_pressure": errors})
+    if remediation_pressure and status != "locked":
+        tasks.append({
+            "task_type": TASK_REMEDIATE,
+            "trigger": "graph_remediation",
+            "error_pressure": remediation_pressure.get("pressure", 0.0),
+            "remediation_sources": remediation_pressure.get("sources", []),
+            "remediation_error_types": remediation_pressure.get("error_types", []),
+        })
 
     if status == "locked" and prereq["average"] >= 0.68 and prereq["weakest"] >= 0.55:
         tasks.append({"task_type": TASK_FRONTIER_PROBE, "trigger": "prerequisites_nearly_ready"})
@@ -246,6 +307,12 @@ def dedupe_tasks(tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
         existing = by_type[task_type]
         existing["trigger"] = ",".join(sorted(set(str(existing.get("trigger", "")).split(",") + [str(task.get("trigger", ""))])))
         for key, value in task.items():
+            if key == "error_pressure":
+                existing[key] = float(existing.get(key, 0.0) or 0.0) + float(value or 0.0)
+                continue
+            if key in {"remediation_sources", "remediation_error_types"}:
+                existing[key] = sorted(set(existing.get(key, []) + list(value or [])))
+                continue
             existing.setdefault(key, value)
     return list(by_type.values())
 
@@ -253,7 +320,9 @@ def dedupe_tasks(tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def estimated_minutes(task_type: str, skill: dict[str, Any], model: dict[str, Any], prereq: dict[str, Any]) -> float:
     minutes = TASK_BASE_MINUTES.get(task_type, 8.0)
     complexity = skill.get("complexity")
-    if complexity == "low":
+    if isinstance(complexity, (int, float)):
+        minutes *= 0.85 + 0.55 * clamp(float(complexity))
+    elif complexity == "low":
         minutes *= 0.85
     elif complexity == "high":
         minutes *= 1.25
@@ -349,7 +418,7 @@ def score_task(
 
     frontier_value = 0.0
     if task_type in {TASK_LEARN, TASK_PRACTICE, TASK_FRONTIER_PROBE}:
-        frontier_value = 0.5 * readiness + 0.5 * weakest_prereq
+        frontier_value = 0.45 * readiness + 0.45 * weakest_prereq + 0.10 * uncertainty
     if target_skill_id and skill_id == target_skill_id:
         frontier_value += 0.35
     elif target_skill_id and skill_id in prerequisite_ids(graph, target_skill_id):
@@ -361,6 +430,10 @@ def score_task(
         diagnostic_information_gain *= 0.45
 
     stabilization = prerequisite_stabilization(graph, skill_id, at_time)
+    error_pressure = recent_error_pressure(skill) + float(task.get("error_pressure", 0.0) or 0.0)
+    remediation_value = clamp(error_pressure / 3.0) if task_type == TASK_REMEDIATE else 0.0
+    if task.get("remediation_sources"):
+        remediation_value = clamp(remediation_value + 0.15)
     interference = interference_penalty(graph, skill_id, at_time)
     frustration = 0.0
     if task_type in {TASK_LEARN, TASK_PRACTICE, TASK_REMEDIATE, TASK_FRONTIER_PROBE}:
@@ -382,6 +455,7 @@ def score_task(
         "frontier_value": round(frontier_value, 4),
         "diagnostic_information_gain": round(diagnostic_information_gain, 4),
         "prerequisite_stabilization": round(stabilization, 4),
+        "remediation_value": round(remediation_value, 4),
         "interference_penalty": round(interference, 4),
         "frustration_risk": round(frustration, 4),
         "redundancy_penalty": round(redundancy, 4),
@@ -395,6 +469,7 @@ def score_task(
             "frontier_value",
             "diagnostic_information_gain",
             "prerequisite_stabilization",
+            "remediation_value",
         )
     )
     risk = sum(
@@ -420,6 +495,11 @@ def score_task(
             "mastery_score": round(float(model.get("mastery_score", 0.0)), 4),
         },
         "prerequisite_readiness": prereq,
+        "remediation": {
+            "error_pressure": round(error_pressure, 4),
+            "sources": task.get("remediation_sources", []),
+            "error_types": task.get("remediation_error_types", []),
+        },
         "reasons": task_reasons(task_type, components, prereq, task),
     }
 
@@ -447,6 +527,8 @@ def task_reasons(
     reasons.extend(f"risk:{key}={value:.2f}" for key, value in risks[:2])
     if task_type in {TASK_LEARN, TASK_PRACTICE, TASK_FRONTIER_PROBE}:
         reasons.append(f"prereq_avg={prereq['average']:.2f}, weakest={prereq['weakest']:.2f}")
+    if task.get("remediation_error_types"):
+        reasons.append("errors=" + ",".join(task["remediation_error_types"][:3]))
     return reasons
 
 
@@ -458,8 +540,16 @@ def rank_tasks(
 ) -> list[dict[str, Any]]:
     today = date.today()
     ranked: list[dict[str, Any]] = []
+    remediation_pressure = remediation_pressure_by_target(graph)
     for skill_id in get_skills(graph):
-        for task in candidate_task_types(graph, skill_id, target_skill_id, today, at_time):
+        for task in candidate_task_types(
+            graph,
+            skill_id,
+            target_skill_id,
+            today,
+            at_time,
+            remediation_pressure.get(skill_id),
+        ):
             ranked.append(score_task(graph, skill_id, task, target_skill_id, at_time))
     ranked.sort(key=lambda item: (-item["score"], item["estimated_minutes"], item["task_id"]))
     return ranked[:limit]
