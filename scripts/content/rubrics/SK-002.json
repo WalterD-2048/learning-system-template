@@ -1,0 +1,90 @@
+{
+  "skill_id": "SK-002",
+  "rubrics": [
+    {
+      "id": "SK-002-R01",
+      "question_type": "cross_skill",
+      "recommended_format": "short_answer",
+      "must_hit": ["connect prerequisite", "name dependency"],
+      "common_failures": [
+        {
+          "signal": "Does not identify the prerequisite role",
+          "error_type": "prerequisite",
+          "feedback": "Name which part of SK-001 is needed before using SK-002."
+        }
+      ],
+      "partial_credit_rules": ["Names SK-001 but does not explain the dependency gets partial credit."],
+      "error_type_mapping": {
+        "missing_dependency": "prerequisite"
+      }
+    },
+    {
+      "id": "SK-002-R02",
+      "question_type": "conceptual",
+      "recommended_format": "short_answer",
+      "must_hit": ["state core move", "contrast with prerequisite"],
+      "common_failures": [
+        {
+          "signal": "Restates SK-001 without naming the new move",
+          "error_type": "conceptual",
+          "feedback": "Separate the old prerequisite from the new operation."
+        }
+      ],
+      "partial_credit_rules": ["States the new move but weakly contrasts it with SK-001 gets partial credit."],
+      "error_type_mapping": {
+        "missing_new_move": "conceptual"
+      }
+    },
+    {
+      "id": "SK-002-R03",
+      "question_type": "argument_analysis",
+      "recommended_format": "short_argument",
+      "must_hit": ["locate failed step", "repair with SK-002"],
+      "common_failures": [
+        {
+          "signal": "Cannot locate where SK-001 stops being sufficient",
+          "error_type": "argument_analysis",
+          "feedback": "Point to the exact step where the prerequisite no longer solves the task."
+        }
+      ],
+      "partial_credit_rules": ["Locates the failed step without a correct repair gets partial credit."],
+      "error_type_mapping": {
+        "cannot_repair_argument": "argument_analysis"
+      }
+    },
+    {
+      "id": "SK-002-R04",
+      "question_type": "boundary",
+      "recommended_format": "short_argument",
+      "must_hit": ["valid case", "invalid nearby case", "boundary reason"],
+      "common_failures": [
+        {
+          "signal": "Treats the nearby invalid case as valid",
+          "error_type": "boundary",
+          "feedback": "Explain which condition fails in the nearby case."
+        }
+      ],
+      "partial_credit_rules": ["Provides cases without a boundary reason gets partial credit."],
+      "error_type_mapping": {
+        "boundary_condition_missing": "boundary"
+      }
+    },
+    {
+      "id": "SK-002-R05",
+      "question_type": "scenario",
+      "recommended_format": "short_answer",
+      "must_hit": ["apply SK-002", "name prerequisite", "state limitation"],
+      "common_failures": [
+        {
+          "signal": "Applies the move but cannot transfer it to the scenario",
+          "error_type": "transfer",
+          "feedback": "Tie the scenario feature to the rule before applying it."
+        }
+      ],
+      "partial_credit_rules": ["Applies SK-002 but omits the limitation gets partial credit."],
+      "error_type_mapping": {
+        "weak_transfer": "transfer"
+      }
+    }
+  ]
+}
