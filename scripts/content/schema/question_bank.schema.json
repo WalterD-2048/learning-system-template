@@ -99,9 +99,68 @@
               "pattern": "^SK-[0-9A-Z]+$"
             }
           },
+          "skill_vector": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": false,
+            "patternProperties": {
+              "^SK-[0-9A-Z]+$": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          },
+          "target_edge": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_edges": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "misconception_targets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
           "difficulty": {
             "type": "string",
             "enum": ["low", "medium", "high"]
+          },
+          "difficulty_param": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "discrimination": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "expected_time_sec": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "requires_automaticity": {
+            "type": "boolean"
+          },
+          "allowed_hints": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "variant_family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surface_similarity_group": {
+            "type": "string",
+            "minLength": 1
           },
           "stage_fit": {
             "type": "array",
