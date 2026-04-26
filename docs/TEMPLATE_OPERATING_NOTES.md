@@ -160,6 +160,8 @@ python3 -m engine.session result SK-001 '{"answers":{"1":"correct"}}'
 
 这个流程的目的，是让 AI 有探索空间，但不能绕开证据、复现和独立检查。
 
+模板自身的持续改进记录从 [../research/template_improvement/goals.md](../research/template_improvement/goals.md) 开始。后续每轮模板改进都应该继续在 `research/template_improvement/` 下记录目标、实验日志、agent review 和验证结果。
+
 ## 下一阶段改进方向
 
 模板已经能自适应运行。下一阶段更适合围绕真实科目做校准：
