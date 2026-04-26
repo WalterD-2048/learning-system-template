@@ -148,6 +148,18 @@ python3 -m engine.session result SK-001 '{"answers":{"1":"correct"}}'
 
 具体科目的知识点、题库、rubric、学习状态和事件日志，应该放在复制出来的具体学习系统里。这样模板可以持续进化，具体项目也不会被模板更新打乱。
 
+## AI 自主探索与科研流程
+
+如果让 AI 自主探索具体科目的学习系统设计方案，不要让它直接一路生成到最终版本。应按 [AI_RESEARCH_WORKFLOW.md](AI_RESEARCH_WORKFLOW.md) 执行：
+
+- 先定义最终目标和成功/失败指标。
+- 再做 source audit、hypothesis、design、implementation、validation、pilot、analysis、revision 和 replication。
+- 每个阶段都要保留实验记录。
+- 每个阶段至少需要一个非执行 agent 审查，高风险阶段需要多个 agent 审查。
+- reviewer agent 标记 `Block` 时，不能进入下一阶段。
+
+这个流程的目的，是让 AI 有探索空间，但不能绕开证据、复现和独立检查。
+
 ## 下一阶段改进方向
 
 模板已经能自适应运行。下一阶段更适合围绕真实科目做校准：
