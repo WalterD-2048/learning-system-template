@@ -122,7 +122,7 @@ python3 -m engine.state export
 - 有前置关系的技能点建议额外设计 `bridge` 或 `cross_skill` 题。
 - `prerequisite` 用于解锁和诊断，`encompasses` 用于 FIRe v2 隐式复习；不要把两者混成一种边。
 
-自适应运行细节见 [docs/ADAPTIVE_RUNTIME.md](docs/ADAPTIVE_RUNTIME.md)。
+自适应运行细节见 [docs/ADAPTIVE_RUNTIME.md](docs/ADAPTIVE_RUNTIME.md)。模板当前完整度、GitHub 使用方式和具体科目落地注意事项见 [docs/TEMPLATE_OPERATING_NOTES.md](docs/TEMPLATE_OPERATING_NOTES.md)。
 
 ## 新系统最小可用线
 
