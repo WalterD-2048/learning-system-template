@@ -24,6 +24,15 @@
       ],
       "related_skills": [],
       "difficulty": "low",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "conceptual"
+      ],
+      "difficulty_param": 0.25,
+      "discrimination": 0.9,
+      "expected_time_sec": 60,
       "stage_fit": [
         "demo_worked",
         "practice",
@@ -49,6 +58,16 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "argument_analysis",
+        "conceptual"
+      ],
+      "difficulty_param": 0.45,
+      "discrimination": 1.0,
+      "expected_time_sec": 100,
       "stage_fit": [
         "demo_worked",
         "practice",
@@ -73,6 +92,15 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "boundary"
+      ],
+      "difficulty_param": 0.55,
+      "discrimination": 1.1,
+      "expected_time_sec": 90,
       "stage_fit": [
         "demo_faded",
         "practice",
@@ -97,6 +125,15 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "transfer"
+      ],
+      "difficulty_param": 0.5,
+      "discrimination": 1.0,
+      "expected_time_sec": 90,
       "stage_fit": [
         "demo_faded",
         "practice",
@@ -121,6 +158,16 @@
       ],
       "related_skills": [],
       "difficulty": "high",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "boundary",
+        "argument_analysis"
+      ],
+      "difficulty_param": 0.75,
+      "discrimination": 1.2,
+      "expected_time_sec": 130,
       "stage_fit": [
         "demo_independent",
         "practice",
@@ -145,6 +192,16 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "boundary",
+        "conceptual"
+      ],
+      "difficulty_param": 0.55,
+      "discrimination": 1.0,
+      "expected_time_sec": 90,
       "stage_fit": [
         "demo_independent",
         "practice",
@@ -169,6 +226,16 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "conceptual",
+        "boundary"
+      ],
+      "difficulty_param": 0.45,
+      "discrimination": 1.0,
+      "expected_time_sec": 75,
       "stage_fit": [
         "demo_independent",
         "practice",
@@ -193,6 +260,15 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "transfer"
+      ],
+      "difficulty_param": 0.55,
+      "discrimination": 1.0,
+      "expected_time_sec": 90,
       "stage_fit": [
         "practice",
         "review"
@@ -216,6 +292,16 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "argument_analysis",
+        "conceptual"
+      ],
+      "difficulty_param": 0.6,
+      "discrimination": 1.1,
+      "expected_time_sec": 110,
       "stage_fit": [
         "demo_independent",
         "practice",
@@ -240,6 +326,15 @@
       ],
       "related_skills": [],
       "difficulty": "high",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "boundary"
+      ],
+      "difficulty_param": 0.7,
+      "discrimination": 1.1,
+      "expected_time_sec": 120,
       "stage_fit": [
         "practice",
         "review"
@@ -263,6 +358,15 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "conceptual"
+      ],
+      "difficulty_param": 0.4,
+      "discrimination": 1.0,
+      "expected_time_sec": 70,
       "stage_fit": [
         "practice",
         "review"
@@ -286,6 +390,16 @@
       ],
       "related_skills": [],
       "difficulty": "medium",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "boundary",
+        "transfer"
+      ],
+      "difficulty_param": 0.55,
+      "discrimination": 1.0,
+      "expected_time_sec": 95,
       "stage_fit": [
         "practice",
         "review"
@@ -309,6 +423,16 @@
       ],
       "related_skills": [],
       "difficulty": "high",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "boundary",
+        "argument_analysis"
+      ],
+      "difficulty_param": 0.75,
+      "discrimination": 1.2,
+      "expected_time_sec": 130,
       "stage_fit": [
         "practice",
         "review"
@@ -332,6 +456,16 @@
       ],
       "related_skills": [],
       "difficulty": "high",
+      "skill_vector": {
+        "SK-001": 1.0
+      },
+      "misconception_targets": [
+        "transfer",
+        "boundary"
+      ],
+      "difficulty_param": 0.8,
+      "discrimination": 1.2,
+      "expected_time_sec": 140,
       "stage_fit": [
         "practice",
         "review"

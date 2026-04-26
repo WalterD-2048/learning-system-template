@@ -48,6 +48,21 @@
     "credits_per_review_equivalent": 2.0,
     "max_delay_factor": 0.5
   },
+  "fire_v2": {
+    "enabled": true,
+    "default_weight": 1.0,
+    "depth_decay": 0.65,
+    "max_depth": 3,
+    "min_credit": 0.05,
+    "too_early_discount": 0.5,
+    "min_spacing_factor": 0.35
+  },
+  "adaptive_runtime": {
+    "enabled": true,
+    "task_ranking_limit": 12,
+    "current_skill_min_questions": 4,
+    "spread_penalty": 0.85
+  },
   "remediation": {
     "force_demo_after_failures": 2,
     "force_concept_after_failures": 3,

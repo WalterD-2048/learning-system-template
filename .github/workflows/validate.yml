@@ -1,0 +1,30 @@
+name: Validate template
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Compile engine
+        working-directory: scripts
+        run: python -m py_compile engine/*.py
+      - name: Validate graph and content
+        working-directory: scripts
+        run: |
+          python -m engine.graph_audit run --strict
+          python -m engine.validate all
+      - name: Exercise adaptive entry points
+        working-directory: scripts
+        run: |
+          python -m engine.diagnostic status --json-output
+          python -m engine.task_selection next --target SK-003 --json-output
+          python -m engine.session start SK-001
