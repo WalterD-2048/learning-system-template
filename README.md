@@ -1,6 +1,6 @@
 # 学习系统模板
 
-这是从当前学习系统抽出来的通用模板，用来快速搭建新的个人学习系统。模板保留了通用的 CLI 引擎、技能图谱、间隔复习、示范练习、正式练习、题库覆盖检查和学习分析；具体学科内容需要在复制后替换。
+这是从当前学习系统抽出来的通用模板，用来快速搭建新的个人学习系统。模板保留了通用的 CLI 引擎、typed 知识图谱、诊断、任务选择、学生模型、FIRe v2、间隔复习、示范练习、正式练习、题库覆盖检查和学习分析；具体学科内容需要在复制后替换。
 
 > 目录名按你的要求保留为 `temple`。如果以后想改成 `template`，可以直接重命名文件夹。
 
@@ -30,7 +30,10 @@ temple/
 │   │   │   └── SK-001.json
 │   │   └── schema/
 │   ├── data/
-│   │   └── skill_graph.json
+│   │   ├── skill_graph.json
+│   │   ├── graph.nodes.json
+│   │   ├── graph.edges.json
+│   │   └── events/
 │   └── engine/
 └── teacher/
     ├── system.md
@@ -79,6 +82,8 @@ cd scripts
 python3 -m engine.state show
 python3 -m engine.content coverage
 python3 -m engine.content audit --only-flagged
+python3 -m engine.validate all
+python3 -m engine.graph_audit run --strict
 ```
 
 ## 用例和风格
@@ -93,9 +98,12 @@ python3 -m engine.content audit --only-flagged
 python3 -m engine.state show
 python3 -m engine.state skill SK-001
 python3 -m engine.state update SK-001 concept_done
+python3 -m engine.diagnostic status
+python3 -m engine.task_selection next --target SK-001
 python3 -m engine.demo start SK-001
 python3 -m engine.session start SK-001
 python3 -m engine.session result SK-001 '{"1":"correct","2":"wrong:conceptual","3":"correct","4":"correct","5":"correct","6":"correct","7":"correct","8":"correct"}'
+python3 -m engine.event_log tail
 python3 -m engine.review due
 python3 -m engine.analytics today
 python3 -m engine.state export
@@ -104,12 +112,17 @@ python3 -m engine.state export
 ## 核心约定
 
 - `scripts/data/skill_graph.json` 是学习状态的权威数据源。
+- `scripts/data/graph.nodes.json` 和 `scripts/data/graph.edges.json` 是 typed knowledge graph 扩展层。
+- `scripts/data/events/*.jsonl` 是 item-level 事件日志，用来回放和校准学生模型。
 - `teacher/progress.md` 由 `python3 -m engine.state export` 生成，不建议手动维护。
 - `teacher/analytics.md` 由 `python3 -m engine.analytics report` 生成。
 - `scripts/content/question_banks/*.json` 存题目。
 - `scripts/content/rubrics/*.json` 存判分规则。
 - 每个技能点建议至少覆盖 `core`、`misconception`、`boundary`、`transfer` 四类题。
 - 有前置关系的技能点建议额外设计 `bridge` 或 `cross_skill` 题。
+- `prerequisite` 用于解锁和诊断，`encompasses` 用于 FIRe v2 隐式复习；不要把两者混成一种边。
+
+自适应运行细节见 [docs/ADAPTIVE_RUNTIME.md](docs/ADAPTIVE_RUNTIME.md)。
 
 ## 新系统最小可用线
 

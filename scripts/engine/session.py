@@ -33,9 +33,38 @@ from engine.state import (
     set_mastery_score_from_status, get_status_mastery_floor,
 )
 from engine.content import load_question_bank, load_skill_rubrics
-from engine.review import award_fire_credits, get_due_reviews_with_fire
+from engine.event_log import (
+    append_answer_events,
+    load_question_index,
+    parse_result_payload as parse_event_result_payload,
+)
+from engine.fire import apply_fire_awards, calculate_fire_awards, failure_suggestions
+from engine.graph import merge_graph_v2_assets
+from engine.review import get_due_reviews_with_fire
+from engine.student_model import (
+    clamp,
+    derive_mastery_score,
+    get_skill_student_model,
+    model_from_mastery_score,
+    update_models_from_event,
+)
+from engine.task_selection import rank_tasks
 
 console = Console()
+
+ITEM_EVIDENCE_FIELDS = (
+    "skill_vector",
+    "target_edge",
+    "target_edges",
+    "misconception_targets",
+    "difficulty_param",
+    "discrimination",
+    "expected_time_sec",
+    "requires_automaticity",
+    "allowed_hints",
+    "variant_family",
+    "surface_similarity_group",
+)
 
 DEFAULT_PRACTICE_BLUEPRINT = [
     {"question_type": "conceptual", "answer_format": "short_answer"},
@@ -219,6 +248,35 @@ def parse_result_payload(raw_payload: dict[str, Any]) -> tuple[dict[str, str], d
     return answers, metadata
 
 
+def enrich_metadata_from_question_ids(metadata: dict[str, Any]) -> dict[str, Any]:
+    question_index = load_question_index()
+    used_map = metadata.get("used_exercise_map", {})
+    if not isinstance(used_map, dict) or not used_map:
+        return metadata
+
+    question_types = dict(metadata.get("question_types", {}))
+    answer_formats = dict(metadata.get("answer_format", {}))
+    evidence_maps = dict(metadata.get("evidence_maps", {}))
+    for question_num, question_id in used_map.items():
+        entry = question_index.get(str(question_id))
+        if not entry:
+            continue
+        q_key = str(question_num)
+        question_types.setdefault(q_key, entry.get("question_type"))
+        answer_formats.setdefault(q_key, entry.get("recommended_format"))
+        for field in ITEM_EVIDENCE_FIELDS:
+            if entry.get(field) is None:
+                continue
+            values = dict(evidence_maps.get(field, {}))
+            values.setdefault(q_key, entry[field])
+            evidence_maps[field] = values
+
+    metadata["question_types"] = {key: value for key, value in question_types.items() if value is not None}
+    metadata["answer_format"] = {key: value for key, value in answer_formats.items() if value is not None}
+    metadata["evidence_maps"] = evidence_maps
+    return metadata
+
+
 def _parse_iso_date(value: Optional[str]) -> Optional[date]:
     if not value:
         return None
@@ -380,6 +438,77 @@ def _build_candidate_priorities(
         }
 
     return priorities
+
+
+def _build_adaptive_candidate_priorities(
+    graph: dict,
+    config: dict,
+    skill_id: str,
+    total_questions: int,
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    """Use the expected-gain task selector as the source of session candidates."""
+    adaptive_cfg = config.get("adaptive_runtime", {})
+    limit = int(adaptive_cfg.get("task_ranking_limit", max(8, total_questions * 2)) or 8)
+    tasks = rank_tasks(
+        merge_graph_v2_assets(graph),
+        limit=max(limit, total_questions),
+        target_skill_id=skill_id,
+    )
+    priorities: dict[str, dict[str, Any]] = {}
+    for task in tasks:
+        candidate_id = task["skill_id"]
+        if candidate_id not in graph.get("skills", {}):
+            continue
+        if task["task_type"] == "frontier_probe" and candidate_id != skill_id:
+            continue
+        existing = priorities.get(candidate_id)
+        score = float(task.get("score", 0.0) or 0.0)
+        tags = [str(task.get("task_type", "adaptive"))]
+        if candidate_id == skill_id:
+            tags.append("current")
+        if task.get("task_type") == "review":
+            tags.append("due_review")
+        if task.get("task_type") == "validate":
+            tags.append("needs_validation")
+        if task.get("task_type") == "remediate":
+            tags.append("remediation")
+        if "target_prerequisite" in str(task.get("trigger", "")):
+            tags.append("prerequisite")
+
+        item = {
+            "skill_id": candidate_id,
+            "name": task.get("name", candidate_id),
+            "status": task.get("status"),
+            "mastery_score": task.get("model", {}).get(
+                "mastery_score",
+                get_mastery_score(graph["skills"][candidate_id], config),
+            ),
+            "score": round(max(score, 0.05), 4),
+            "tags": _dedupe_keep_order(tags),
+            "reasons": task.get("reasons", []) or [f"adaptive task {task.get('task_type')}"],
+            "adaptive_task": {
+                "task_id": task.get("task_id"),
+                "task_type": task.get("task_type"),
+                "estimated_minutes": task.get("estimated_minutes"),
+                "components": task.get("components", {}),
+            },
+        }
+        if existing is None or item["score"] > existing["score"]:
+            priorities[candidate_id] = item
+
+    if skill_id not in priorities:
+        skill = get_skill(graph, skill_id)
+        priorities[skill_id] = {
+            "skill_id": skill_id,
+            "name": skill.get("name", skill_id),
+            "status": skill.get("status"),
+            "mastery_score": get_mastery_score(skill, config),
+            "score": 8.0,
+            "tags": ["current", "adaptive_fallback"],
+            "reasons": ["当前技能点保底"],
+        }
+
+    return priorities, tasks
 
 
 def _allocate_questions_by_priority(
@@ -640,6 +769,9 @@ def _build_question_plan(
                 "recommended_format": bank_entry.get("recommended_format"),
                 "rubric_id": rubric_id or None,
             })
+            for field in ITEM_EVIDENCE_FIELDS:
+                if bank_entry.get(field) is not None:
+                    item[field] = bank_entry[field]
             if rubric:
                 item["rubric"] = {
                     "must_hit": rubric.get("must_hit", []),
@@ -672,6 +804,188 @@ def _build_question_plan(
         "question_bank_selected_count": selected_asset_count,
     }
     return question_plan, answer_format_targets, question_type_targets, practice_rules, content_assets
+
+
+def _store_student_model(skill: dict[str, Any], model: dict[str, Any]) -> None:
+    model["mastery_score"] = derive_mastery_score(model)
+    skill["student_model"] = model
+    skill["mastery_score"] = model["mastery_score"]
+
+
+def _apply_status_floor_to_model(model: dict[str, Any], floor: float) -> dict[str, Any]:
+    if float(model.get("mastery_score", 0.0) or 0.0) >= floor:
+        return model
+    baseline = model_from_mastery_score(floor)
+    merged = dict(model)
+    for field in ("mastery_p", "retrievability", "stability_days", "automaticity"):
+        merged[field] = max(float(model.get(field, 0.0) or 0.0), float(baseline.get(field, 0.0) or 0.0))
+    merged["uncertainty"] = min(
+        float(model.get("uncertainty", baseline["uncertainty"]) or baseline["uncertainty"]),
+        float(baseline.get("uncertainty", 0.45) or 0.45),
+    )
+    merged["mastery_score"] = derive_mastery_score(merged)
+    guard = 0
+    while merged["mastery_score"] < floor and guard < 20:
+        merged["mastery_p"] = round(clamp(float(merged.get("mastery_p", 0.0)) + 0.04), 4)
+        merged["retrievability"] = round(clamp(float(merged.get("retrievability", 0.0)) + 0.04), 4)
+        merged["automaticity"] = round(clamp(float(merged.get("automaticity", 0.0)) + 0.03), 4)
+        merged["uncertainty"] = round(clamp(float(merged.get("uncertainty", 0.45)) - 0.03), 4)
+        merged["mastery_score"] = derive_mastery_score(merged)
+        guard += 1
+    return merged
+
+
+def _nudge_student_model(
+    skill: dict[str, Any],
+    uncertainty_delta: float = 0.0,
+    retrievability_delta: float = 0.0,
+) -> dict[str, Any]:
+    model = get_skill_student_model(skill)
+    model["uncertainty"] = round(clamp(float(model.get("uncertainty", 0.45)) + uncertainty_delta), 4)
+    model["retrievability"] = round(
+        clamp(float(model.get("retrievability", 0.0)) + retrievability_delta),
+        4,
+    )
+    _store_student_model(skill, model)
+    return model
+
+
+def _apply_graph_failure_updates(
+    graph: dict[str, Any],
+    config: dict[str, Any],
+    skill_id: str,
+    errors_by_type: dict[str, int],
+) -> dict[str, Any]:
+    """Apply graph-aware failure side effects and return an auditable summary."""
+    suggestions = failure_suggestions(
+        merge_graph_v2_assets(graph),
+        skill_id,
+        sorted(errors_by_type.keys()),
+    )
+    applied = {
+        "failed_skill_uncertainty": False,
+        "prerequisites_flagged": [],
+        "dependents_uncertainty_increased": [],
+    }
+
+    failed_skill = graph.get("skills", {}).get(skill_id)
+    if failed_skill:
+        _nudge_student_model(failed_skill, uncertainty_delta=0.08, retrievability_delta=-0.10)
+        applied["failed_skill_uncertainty"] = True
+
+    for prereq_id in suggestions.get("prerequisites_to_validate", []):
+        prereq = graph.get("skills", {}).get(prereq_id)
+        if not prereq:
+            continue
+        _nudge_student_model(prereq, uncertainty_delta=0.04)
+        if prereq.get("status") in ("mastered", "review_due", "long_term"):
+            prereq["status"] = "needs_validation"
+            set_mastery_score_from_status(
+                prereq,
+                config,
+                "needs_validation",
+                preserve_higher=False,
+            )
+            applied["prerequisites_flagged"].append(prereq_id)
+
+    for dependent_id in suggestions.get("dependents_to_increase_uncertainty", []):
+        dependent = graph.get("skills", {}).get(dependent_id)
+        if not dependent:
+            continue
+        _nudge_student_model(dependent, uncertainty_delta=0.06)
+        applied["dependents_uncertainty_increased"].append(dependent_id)
+
+    return {"suggestions": suggestions, "applied": applied}
+
+
+def _apply_adaptive_runtime_updates(
+    graph: dict[str, Any],
+    config: dict[str, Any],
+    skill_id: str,
+    answers: dict[str, str],
+    metadata: dict[str, Any],
+    passed: bool,
+    accuracy: float,
+    errors_by_type: dict[str, int],
+) -> dict[str, Any]:
+    """
+    Persist item-level evidence, update the student model, and run FIRe v2.
+    """
+    runtime_cfg = config.get("adaptive_runtime", {})
+    enabled = bool(runtime_cfg.get("enabled", True))
+    summary: dict[str, Any] = {
+        "enabled": enabled,
+        "events_recorded": 0,
+        "updated_student_models": [],
+        "fire_v2_awards": [],
+        "fire_v2_applied": [],
+        "failure": None,
+    }
+    if not enabled:
+        return summary
+
+    events = append_answer_events(skill_id, answers, metadata)
+    summary["events_recorded"] = len(events)
+
+    states = {
+        sid: get_skill_student_model(skill)
+        for sid, skill in graph.get("skills", {}).items()
+        if isinstance(skill, dict)
+    }
+    touched: set[str] = set()
+    for event in events:
+        states = update_models_from_event(states, event)
+        skill_vector = event.get("skill_vector")
+        if isinstance(skill_vector, dict) and skill_vector:
+            touched.update(str(sid) for sid in skill_vector)
+        else:
+            touched.add(str(event.get("skill_id", skill_id)))
+
+    for sid in sorted(touched):
+        skill = graph.get("skills", {}).get(sid)
+        model = states.get(sid)
+        if not skill or not model:
+            continue
+        if passed and sid == skill_id:
+            model = _apply_status_floor_to_model(
+                model,
+                get_status_mastery_floor(config, "mastered"),
+            )
+        _store_student_model(skill, model)
+        summary["updated_student_models"].append({
+            "skill_id": sid,
+            "mastery_score": model.get("mastery_score"),
+            "mastery_p": model.get("mastery_p"),
+            "retrievability": model.get("retrievability"),
+            "uncertainty": model.get("uncertainty"),
+        })
+
+    adaptive_graph = merge_graph_v2_assets(graph)
+    if passed:
+        awards = calculate_fire_awards(
+            adaptive_graph,
+            skill_id,
+            passed=True,
+            quality=accuracy,
+            config=config,
+        )
+        applied = apply_fire_awards(
+            adaptive_graph,
+            awards,
+            update_student_model=True,
+        )
+        summary["fire_v2_awards"] = awards
+        summary["fire_v2_applied"] = applied
+    else:
+        summary["failure"] = _apply_graph_failure_updates(
+            graph=graph,
+            config=config,
+            skill_id=skill_id,
+            errors_by_type=errors_by_type,
+        )
+
+    return summary
+
 
 def generate_session_plan(graph: dict, config: dict, skill_id: str) -> dict:
     """
@@ -722,11 +1036,27 @@ def generate_session_plan(graph: dict, config: dict, skill_id: str) -> dict:
     # 候选技能优先级
     interleaving = config.get("interleaving", {})
     due_reviews = get_due_reviews_with_fire(graph, config)
-    candidate_priorities = _build_candidate_priorities(graph, config, skill_id, due_reviews)
+    adaptive_cfg = config.get("adaptive_runtime", {})
+    adaptive_enabled = bool(adaptive_cfg.get("enabled", True))
+    adaptive_task_ranking: list[dict[str, Any]] = []
+    if adaptive_enabled:
+        candidate_priorities, adaptive_task_ranking = _build_adaptive_candidate_priorities(
+            graph=graph,
+            config=config,
+            skill_id=skill_id,
+            total_questions=total,
+        )
+    else:
+        candidate_priorities = _build_candidate_priorities(graph, config, skill_id, due_reviews)
+    if not candidate_priorities:
+        candidate_priorities = _build_candidate_priorities(graph, config, skill_id, due_reviews)
     current_minimum = int(
-        interleaving.get("current_skill_min_questions", max(1, total // 2))
+        adaptive_cfg.get(
+            "current_skill_min_questions",
+            interleaving.get("current_skill_min_questions", max(1, total // 2)),
+        )
     )
-    spread_penalty = float(interleaving.get("spread_penalty", 0.85))
+    spread_penalty = float(adaptive_cfg.get("spread_penalty", interleaving.get("spread_penalty", 0.85)))
     allocation, selection_trace = _allocate_questions_by_priority(
         total_questions=total,
         skill_id=skill_id,
@@ -785,6 +1115,9 @@ def generate_session_plan(graph: dict, config: dict, skill_id: str) -> dict:
             reverse=True,
         ),
         "selection_trace": selection_trace,
+        "adaptive_runtime_enabled": adaptive_enabled,
+        "adaptive_task_ranking": adaptive_task_ranking,
+        "recommended_task": adaptive_task_ranking[0] if adaptive_task_ranking else None,
         "question_plan": question_plan,
         "question_type_targets": question_type_targets,
         "answer_format_targets": answer_format_targets,
@@ -831,6 +1164,10 @@ def process_results(
     answer_format_map = metadata.get("answer_format", {})
     source_skill_map = metadata.get("source_skill", {})
     used_exercises = _dedupe_keep_order(metadata.get("used_exercises", []))
+    used_exercise_map = metadata.get("used_exercise_map", {})
+    response_time_map = metadata.get("response_time_sec", {})
+    hint_used_map = metadata.get("hint_used", {})
+    rubric_hits_map = metadata.get("rubric_hits", {})
     mastery_score_before = get_mastery_score(sk, config)
     answer_format_counts: dict[str, int] = {}
     answer_format_correct_counts: dict[str, int] = {}
@@ -921,6 +1258,10 @@ def process_results(
         "source_skills": source_skills,
         "source_skill_map": source_skill_map,
         "used_exercises": used_exercises,
+        "used_exercise_map": used_exercise_map,
+        "response_time_sec": response_time_map,
+        "hint_used": hint_used_map,
+        "rubric_hits": rubric_hits_map,
         "termination_reason": termination_reason,
         "early_terminated": early_terminated,
         "mastery_score_before": mastery_score_before,
@@ -960,8 +1301,7 @@ def process_results(
             ),
         )
 
-        # FIRe 学分
-        fire_awarded = award_fire_credits(graph, config, skill_id, True)
+        fire_awarded = []
 
         # 检查解锁
         newly_unlocked = check_unlockable(graph)
@@ -1000,6 +1340,27 @@ def process_results(
         if count >= 3
     ]
 
+    adaptive_updates = _apply_adaptive_runtime_updates(
+        graph=graph,
+        config=config,
+        skill_id=skill_id,
+        answers=answers,
+        metadata=metadata,
+        passed=passed,
+        accuracy=accuracy,
+        errors_by_type=errors_by_type,
+    )
+    fire_awarded = adaptive_updates.get("fire_v2_applied", fire_awarded)
+    mastery_score_after = get_mastery_score(sk, config)
+    adaptive_prereq_flags = (
+        adaptive_updates.get("failure", {})
+        .get("applied", {})
+        .get("prerequisites_flagged", [])
+        if adaptive_updates.get("failure")
+        else []
+    )
+    prerequisites_flagged = _dedupe_keep_order([*prerequisites_flagged, *adaptive_prereq_flags])
+
     result = {
         "skill_id": skill_id,
         "accuracy": accuracy,
@@ -1022,6 +1383,8 @@ def process_results(
         "used_exercises": used_exercises,
         "mastery_score_before": mastery_score_before,
         "mastery_score_after": mastery_score_after,
+        "events_recorded": adaptive_updates.get("events_recorded", 0),
+        "adaptive_updates": adaptive_updates,
     }
 
     if passed:
@@ -1103,6 +1466,12 @@ def start(skill_id: str):
     console.print(f"   总题量：{plan['total_questions']}")
     console.print(f"   学科分级：{plan['classification']}类")
     console.print(f"   内容来源：{plan.get('content_source', 'blueprint_only')}")
+    if plan.get("adaptive_runtime_enabled") and plan.get("recommended_task"):
+        task = plan["recommended_task"]
+        console.print(
+            f"   自适应推荐：{task.get('task_type')}:{task.get('skill_id')} "
+            f"（score {task.get('score', 0):.2f}）"
+        )
     if plan.get("question_bank_loaded"):
         console.print(f"   题库命中：{plan.get('question_bank_selected_count', 0)}/{plan['total_questions']}\n")
     else:
@@ -1204,6 +1573,28 @@ def result(skill_id: str, answers_json: str):
     try:
         raw_payload = json.loads(answers_json)
         answers, metadata = parse_result_payload(raw_payload)
+        _, event_metadata = parse_event_result_payload(raw_payload)
+        for key in (
+            "question_types",
+            "answer_format",
+            "source_skill",
+            "used_exercise_map",
+            "response_time_sec",
+            "hint_used",
+            "rubric_hits",
+            "evidence_maps",
+            "session_id",
+        ):
+            value = event_metadata.get(key)
+            if value:
+                metadata[key] = value
+        metadata["used_exercises"] = _dedupe_keep_order(
+            [
+                *metadata.get("used_exercises", []),
+                *event_metadata.get("used_exercises", []),
+            ]
+        )
+        metadata = enrich_metadata_from_question_ids(metadata)
     except (json.JSONDecodeError, ValueError) as exc:
         console.print("[red]错误：答案 JSON 格式无效[/red]")
         console.print(f"   {exc}")
@@ -1252,7 +1643,11 @@ def result(skill_id: str, answers_json: str):
     if fire:
         console.print(f"   FIRe 学分：")
         for f in fire:
-            console.print(f"     {f['skill_id']}：+{f['credit']:.1f}（累计 {f['total']:.1f}）")
+            total_credit = f.get("total", f.get("after", 0.0))
+            console.print(f"     {f['skill_id']}：+{f['credit']:.2f}（累计 {total_credit:.2f}）")
+
+    if result.get("events_recorded"):
+        console.print(f"   事件日志：写入 {result['events_recorded']} 条 item-level evidence")
 
     unlocked = result.get("newly_unlocked", [])
     if unlocked:
