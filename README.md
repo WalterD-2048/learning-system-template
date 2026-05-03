@@ -20,7 +20,11 @@ temple/
 ├── CONTENT_QUALITY_CHECKLIST.md
 ├── requirements.txt
 ├── source/
-│   └── SOURCE.md
+│   ├── SOURCE.md
+│   ├── source_index.example.yml
+│   ├── scope_contract.example.md
+│   └── materials/
+│       └── README.md
 ├── scripts/
 │   ├── config.json
 │   ├── content/
@@ -70,6 +74,7 @@ python3 -m pip install -r requirements.txt
 
 - 改 `scripts/config.json` 里的 `subject`、`textbook`、学习强度和复习策略
 - 改 `source/SOURCE.md`，放教材、原文摘录、章节索引或资料说明
+- 如果要生成完整学习系统，复制 `source/scope_contract.example.md` 为 `source/scope_contract.md`，复制 `source/source_index.example.yml` 为 `source/source_index.yml`，并把教材、课程笔记、论文或原文 markdown 放入 `source/materials/`
 - 改 `scripts/data/skill_graph.json`，把示例技能点替换成你的真实技能图谱
 - 改 `teacher/system.md` 和 `teacher/system_detail.md`，确定教学角色和工作流
 - 给每个技能点补 `scripts/content/question_banks/SK-XXX.json`
@@ -89,6 +94,15 @@ python3 -m engine.graph_audit run --strict
 ## 用例和风格
 
 如果要基于模板设计新的学习系统，先看 [USE_CASES_AND_STYLES.md](USE_CASES_AND_STYLES.md)。里面给了哲学、经济、交易、政治、历史、数学、写作等方向的用例草案，也给了苏格拉底式、研究生研讨式、严格考官式、案例教练式、复盘审计式、历史叙事式和写作工作坊式等风格预设。
+
+## 生成路径
+
+模板支持两条路径：
+
+- **完整系统生成**：先准备 `source/scope_contract.md`、`source/source_index.yml` 和 `source/materials/*.md`，通过 Resource Intake Gate 后，基于资料语料库生成完整、可追溯、可验证的学习系统。见 [GENERATE.md](GENERATE.md)、[docs/RESOURCE_REQUIREMENTS.md](docs/RESOURCE_REQUIREMENTS.md) 和 [docs/FULL_SYSTEM_GENERATION.md](docs/FULL_SYSTEM_GENERATION.md)。
+- **MVP 生成**：先做 3-8 个技能点的小范围版本，跑通概念课、示范练习、正式练习和复习，再逐步扩展。这个路径仍然保留，但属于可选路径。
+
+完整系统发布前使用 [research/full_generation_checklist.md](research/full_generation_checklist.md) 做检查。这里的“完整”只表示覆盖用户提供的资料语料库和声明范围，不表示覆盖整个学科。
 
 ## 常用命令
 

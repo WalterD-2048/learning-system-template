@@ -1,105 +1,110 @@
 # 从模板生成新学习系统
 
-这份清单用于把 `temple` 复制成一个具体学科的学习系统。
+这份文档是生成入口。详细规则分别放在：
 
-## 1. 定义系统边界
+- [docs/RESOURCE_REQUIREMENTS.md](docs/RESOURCE_REQUIREMENTS.md)：资料包和 Resource Intake Gate。
+- [docs/FULL_SYSTEM_GENERATION.md](docs/FULL_SYSTEM_GENERATION.md)：完整系统生成流程。
+- [source/source_index.example.yml](source/source_index.example.yml)：机器可读资料索引示例。
+- [source/scope_contract.example.md](source/scope_contract.example.md)：范围契约示例。
+- [source/materials/README.md](source/materials/README.md)：教材和课程 markdown 放置规则。
+- [research/full_generation_checklist.md](research/full_generation_checklist.md)：发布检查清单。
 
-先写清楚四件事：
+模板支持两条路径：
 
-- 学什么：书、课程、技能、考试或项目
-- 学到什么程度算掌握
-- 学习材料来自哪里
-- 一次学习课/练习课大约多长
+- **完整系统生成路径**：基于用户提供的 markdown 资料语料库和范围契约，一次性生成完整、可追溯、可验证的学习系统。
+- **MVP 生成路径**：先做 3-8 个技能点的小范围可运行版本。这是可选路径，适合资料尚未齐备或需要先验证教学风格时使用。
 
-建议先做一个小范围版本，不要一开始覆盖整本书。
+这里的完整只表示**完整覆盖用户提供的资料语料库和 `source/scope_contract.md` 声明的学习范围**，不表示覆盖整个学科。
 
-## 2. 配置系统
+## 共同硬规则
 
-修改 `scripts/config.json`：
+- 不重写 engine。
+- 不引入不必要的重型依赖。
+- 保留现有自适应运行时和验证命令。
+- 核心定义、核心题目、rubric 判分点必须有来源锚点。
+- 禁止无来源锚点的核心定义。
+- 禁止无来源锚点的题目。
+- 禁止虚构教材观点、虚构原文、虚构引用。
+- 资料不足时生成 `SOURCE_GAP`，不要编造内容。
 
-- `subject`：学科或系统名称
-- `classification`：内容类型，可用 `A/B/C/D` 自定义解释
-- `textbook`：主教材、课程或资料来源
-- `intensity`：`low`、`medium` 或 `high`
-- `questions_per_session`：一次正式练习题量
-- `mastery_threshold`：掌握阈值
-- `review_schedule`：间隔复习节奏
+## 路径 A：完整系统生成
 
-## 3. 设计技能图谱
-
-修改 `scripts/data/skill_graph.json`。
-
-每个技能点至少需要：
-
-```json
-{
-  "name": "技能点名称",
-  "description": "这个技能点要求学习者会什么",
-  "prerequisites": [],
-  "source": {
-    "textbook": "资料来源",
-    "chapter": "章节",
-    "section": "小节"
-  },
-  "complexity": "medium",
-  "status": "unlocked",
-  "dates": {},
-  "practice_history": [],
-  "consecutive_failures": 0,
-  "bound_exercises": [],
-  "exercise_anchor": "原文或材料锚点",
-  "mastery_score": 0.05
-}
-```
-
-初始状态建议：
-
-- 第一个技能点：`unlocked`
-- 有前置依赖的技能点：`locked`
-- 已经讲完概念课的技能点：`concept_done`
-- 已经完成示范练习的技能点：`demo_done`
-
-## 4. 写 teacher 工作流
-
-修改 `teacher/system.md` 和 `teacher/system_detail.md`：
-
-- 主教师如何讲课
-- 助教什么时候补充
-- 考官如何出题和判分
-- 概念课结束后要更新哪些文件
-- 练习课结束后要记录哪些结果
-
-角色文件可以按系统需要改名，也可以继续使用：
-
-- `main_teacher.md`
-- `assistant_teacher.md`
-- `examiner.md`
-- `learner_profile.md`
-
-## 5. 建题库和 rubric
-
-每个技能点对应两类文件：
+默认完整工作流：
 
 ```text
-scripts/content/question_banks/SK-001.json
-scripts/content/rubrics/SK-001.json
+收集足够教材/课程 markdown
+-> 审计资源是否足够完整
+-> 一次性生成完整课程系统
+-> 运行验证命令和 reviewer gate
+-> 修正到 Done When
 ```
 
-题库至少覆盖：
+用户至少准备：
 
-- `core`：核心概念
-- `misconception`：常见误解
-- `boundary`：边界判断
-- `transfer`：迁移应用
+```text
+source/
+├── SOURCE.md
+├── scope_contract.md
+├── source_index.yml
+└── materials/
+    ├── textbook-or-primary-source.md
+    ├── course-notes.md
+    └── paper-or-original.md
+```
 
-有前置依赖时建议增加：
+执行顺序：
 
-- `bridge`：连接当前技能和前置技能
-- `cross_skill`：跨技能综合
+1. 复制并填写 `source/scope_contract.example.md` -> `source/scope_contract.md`。
+2. 复制并填写 `source/source_index.example.yml` -> `source/source_index.yml`。
+3. 把教材、课程笔记、论文、原文等 markdown 放入 `source/materials/`。
+4. 按 [docs/RESOURCE_REQUIREMENTS.md](docs/RESOURCE_REQUIREMENTS.md) 通过 Resource Intake Gate。
+5. 按 [docs/FULL_SYSTEM_GENERATION.md](docs/FULL_SYSTEM_GENERATION.md) 一次性生成课程级资产。
+6. 运行验证命令，并按 reviewer gate 修正。
+7. 完成 [research/full_generation_checklist.md](research/full_generation_checklist.md)。
 
-## 6. 跑检查
+一次性生成的主要资产包括：
 
-在 `scripts/` 下执行：
+- `scripts/config.json`
+- `scripts/data/skill_graph.json`
+- `scripts/data/graph.nodes.json`
+- `scripts/data/graph.edges.json`
+- `scripts/content/question_banks/SK-XXX.json`
+- `scripts/content/rubrics/SK-XXX.json`
+- `teacher/system.md`
+- `teacher/system_detail.md`
+- `teacher/learner_profile.md`
+- 必要时的 `research/source_gaps.md`
+
+如果 Resource Intake Gate 不通过，只能记录 `SOURCE_GAP` 或生成不依赖缺失资料的外围结构，不能生成被缺口阻塞的核心内容。
+
+### Codex /goal 推荐写法
+
+```text
+/goal 先收集并检查 source/materials/ 中的教材、课程和论文 markdown 是否足够支撑完整生成；再基于 source/scope_contract.md、source/source_index.yml 和 source/materials/ 一次性生成完整课程系统；最后运行验证命令和 reviewer gate 修正到 Done When。
+完整只指覆盖这些资料和声明范围。所有技能、题目和 rubric 必须有 source anchor。资料不足时生成 SOURCE_GAP，不要编造内容。保留现有 engine 和验证命令。
+```
+
+## 路径 B：MVP 生成（可选）
+
+MVP 路径保留原有小范围生成方式：
+
+1. 定义 3-8 个技能点的小范围边界。
+2. 修改 `scripts/config.json`。
+3. 修改 `scripts/data/skill_graph.json`。
+4. 更新 `teacher/system.md` 和 `teacher/system_detail.md`。
+5. 为每个技能点补 `scripts/content/question_banks/SK-XXX.json`。
+6. 为每个技能点补 `scripts/content/rubrics/SK-XXX.json`。
+7. 跑验证命令，再逐步扩展。
+
+即使走 MVP 路径，也应保留 source anchor。无法确认来源时，标记为待验证，不要声称 complete。
+
+如果目标从 MVP 升级为完整系统，回到路径 A，补齐 `scope_contract.md`、`source_index.yml` 和 markdown 资料语料库。
+
+## 验证命令
+
+所有命令都在 `scripts/` 下执行。
+
+基础检查：
 
 ```bash
 python3 -m engine.state show
@@ -108,13 +113,31 @@ python3 -m engine.content audit --only-flagged
 python3 -m engine.analytics today
 ```
 
-如果已经把某个技能点设成 `concept_done` 或 `demo_done`，可以继续测试：
+完整系统发布前：
+
+```bash
+python3 -m engine.validate all
+python3 -m engine.validate all --strict
+python3 -m engine.graph_audit run --strict
+python3 -m engine.diagnostic status
+python3 -m engine.task_selection next
+```
+
+如果某个技能点已设成 `concept_done` 或 `demo_done`，继续抽测：
 
 ```bash
 python3 -m engine.demo start SK-001
 python3 -m engine.session start SK-001
 ```
 
-## 7. 再扩展
+## 完整系统 Done When
 
-等小范围版本能稳定运行后，再批量扩展技能点和题库。每扩一批，先跑覆盖检查，再开始真实学习。
+- Resource Intake Gate 通过，或所有 blocking `SOURCE_GAP` 已由用户处理。
+- 每个 include scope item 已映射到 skill、背景资料、排除理由或 `SOURCE_GAP`。
+- 每个 skill 有 source、前置关系、状态、mastery 字段、题库和 rubric。
+- 题库覆盖 `core`、`misconception`、`boundary`、`transfer`；有前置时覆盖 `bridge`。
+- 核心题目和 rubric `must_hit` 都有 source anchor。
+- 无虚构引用、虚构教材观点或无来源核心定义。
+- strict validation、graph audit、coverage 和 audit 没有 blocking 缺口。
+- Reviewer gate 全部 Pass，或所有 blocking findings 已修正并复审通过。
+- [research/full_generation_checklist.md](research/full_generation_checklist.md) 已完成。

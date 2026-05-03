@@ -1,0 +1,133 @@
+version: 1
+
+corpus:
+  id: example-corpus
+  title: "示例：课程资料语料库"
+  language: "zh-CN"
+  scope_contract: "source/scope_contract.md"
+  source_summary: "source/SOURCE.md"
+  materials_root: "source/materials"
+  anchor_policy: "Use MATERIAL-ID#local-anchor. Anchors must resolve to markdown headings, HTML anchors, page markers, or timestamps."
+
+materials:
+  - id: TXT-001
+    title: "示例教材"
+    type: "textbook"
+    path: "source/materials/example-textbook.md"
+    status: "available"
+    priority: "primary"
+    author: "示例作者"
+    edition: "第 1 版"
+    year: 2026
+    language: "zh-CN"
+    rights_note: "用户确认可用于本地个人学习系统生成。"
+    include_units:
+      - unit_id: "U1"
+        label: "第 1 章：核心概念"
+        anchors:
+          - "TXT-001#ch01-sec01-def-core"
+          - "TXT-001#ch01-sec02-example-1"
+      - unit_id: "U2"
+        label: "第 2 章：应用和边界"
+        anchors:
+          - "TXT-001#ch02-sec01-boundary"
+          - "TXT-001#ch02-sec03-transfer-case"
+    exclude_units:
+      - unit_id: "APP-A"
+        label: "附录 A：历史背景"
+        reason: "背景阅读，不进入当前学习范围。"
+    anchors:
+      - id: "TXT-001#ch01-sec01-def-core"
+        locator: "第 1 章 第 1 节 核心定义段落"
+        source_path: "source/materials/example-textbook.md#ch01-sec01-def-core"
+        supports:
+          - "definition"
+          - "skill"
+          - "core_question"
+        scope_items:
+          - "SC-001"
+      - id: "TXT-001#ch01-sec02-example-1"
+        locator: "第 1 章 第 2 节 例 1"
+        source_path: "source/materials/example-textbook.md#ch01-sec02-example-1"
+        supports:
+          - "worked_example"
+          - "demo"
+          - "boundary_question"
+        scope_items:
+          - "SC-001"
+      - id: "TXT-001#ch02-sec03-transfer-case"
+        locator: "第 2 章 第 3 节 迁移案例"
+        source_path: "source/materials/example-textbook.md#ch02-sec03-transfer-case"
+        supports:
+          - "transfer_question"
+        scope_items:
+          - "SC-002"
+
+  - id: COURSE-001
+    title: "示例课程笔记"
+    type: "course_notes"
+    path: "source/materials/example-course-notes.md"
+    status: "available"
+    priority: "secondary"
+    author: "示例教师"
+    edition: "2026 春季"
+    language: "zh-CN"
+    rights_note: "用户提供的课程笔记，仅用于本地学习。"
+    include_units:
+      - unit_id: "W01"
+        label: "第 1 周：概念导入"
+        anchors:
+          - "COURSE-001#week01-key-distinction"
+    exclude_units: []
+    anchors:
+      - id: "COURSE-001#week01-key-distinction"
+        locator: "第 1 周笔记，关键区分"
+        source_path: "source/materials/example-course-notes.md#week01-key-distinction"
+        supports:
+          - "misconception"
+          - "contrast"
+        scope_items:
+          - "SC-001"
+
+scope_items:
+  - id: "SC-001"
+    title: "掌握核心概念和关键边界"
+    status: "in_scope"
+    completion_standard: "学习者能给出定义、识别误解、判断边界，并解释一个反例。"
+    source_anchors:
+      - "TXT-001#ch01-sec01-def-core"
+      - "TXT-001#ch01-sec02-example-1"
+      - "COURSE-001#week01-key-distinction"
+    expected_skills:
+      - "SK-001"
+      - "SK-002"
+
+  - id: "SC-002"
+    title: "把核心概念迁移到新案例"
+    status: "in_scope"
+    completion_standard: "学习者能在未见过的案例中说明适用条件和限制。"
+    source_anchors:
+      - "TXT-001#ch02-sec03-transfer-case"
+    expected_skills:
+      - "SK-003"
+
+  - id: "SC-003"
+    title: "学科史背景"
+    status: "out_of_scope"
+    reason: "当前阶段只做可测技能，不覆盖历史背景。"
+    source_anchors: []
+    expected_skills: []
+
+source_gaps:
+  - id: "SG-001"
+    status: "example_unresolved"
+    blocking: true
+    gap_type: "insufficient_exercises"
+    scope_item: "SC-002"
+    needed_for:
+      - "transfer_question"
+      - "rubric"
+    attempted_sources:
+      - "TXT-001#ch02-sec03-transfer-case"
+    problem: "示例资料只有一个迁移案例，不足以生成多样化 transfer 题。"
+    required_human_action: "补充至少两个课程案例，或把 SC-002 的完成标准降级。"
